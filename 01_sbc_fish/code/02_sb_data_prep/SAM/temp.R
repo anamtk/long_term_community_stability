@@ -23,7 +23,8 @@ for(i in package.list){library(i, character.only = T)}
 
 
 # Load data ---------------------------------------------------------------
-
+#Data can be found here:
+#https://portal.edirepository.org/nis/mapbrowse?packageid=knb-lter-sbc.13.29
 bottemp <- read.csv(here('01_sbc_fish',
                          "data_raw",
                          "environmental",

@@ -21,6 +21,9 @@ for(i in package.list){library(i, character.only = T)}
 
 # Load data ---------------------------------------------------------------
 
+#Data can be found here:
+#https://portal.edirepository.org/nis/mapbrowse?scope=knb-lter-sbc&identifier=17&revision=37
+
 #fish survey data
 fish <- read.csv(here('01_sbc_fish',
                       "data_raw",
@@ -429,150 +432,6 @@ n.rep <- fish4 %>%
                 '16','17','18','19','20',
                 '21', '22', '23') %>%
   as.matrix()
-
-
-#n.rep[which(is.na(n.rep))] <- 1
-
-
-# Make R covariance matrix ------------------------------------------------
-
-#n.species x n.species matrix of covariance between species abundances
-#for the omega parameter prior in the multivariate normal distribution
-# this omega will be somewhat of the covariance matrix similar to a
-# JSDM 
-
-#R needs to be positive definite,
-
-#trying shelby's code from Kiona/Jessica - need to ask what this means
-# R<-diag(x=0.1, n.species, n.species)
-# 
-# #omega also needs priors, which I'm going to attempt to define using
-# #covariance among species abundances, we'll see how it goes
-# 
-# t <- fish4 %>%
-#   group_by(yrID, siteID, specID) %>%
-#   summarise(COUNT = mean(COUNT, na.rm = T)) %>%
-#   ungroup() %>%
-#   unite("site_year", c("yrID", "siteID"),
-#         sep = "_") %>%
-#   dplyr::select(specID, COUNT, site_year) %>%
-#   pivot_wider(names_from = specID,
-#               values_from = COUNT,
-#               values_fill = 0) %>%
-#   column_to_rownames(var = "site_year") %>%
-#   mutate(across(everything(), ~replace_na(.x, 0)))
-# # 
-# t2 <- fish4 %>%
-#   group_by(yrID, siteID, specID) %>%
-#   summarise(COUNT = max(COUNT, na.rm = T)) %>%
-#   ungroup() %>%
-#   unite("site_year", c("yrID", "siteID"),
-#         sep = "_") %>%
-#   dplyr::select(specID, COUNT, site_year) %>%
-#   pivot_wider(names_from = specID,
-#               values_from = COUNT,
-#               values_fill = 0) %>%
-#   column_to_rownames(var = "site_year") %>%
-#   mutate(across(everything(), ~replace_na(.x, 0)))
-# 
-# t3 <- fish4 %>%
-#   group_by(yrID, siteID, specID) %>%
-#   summarise(COUNT = mean(COUNT, na.rm = T, trim = 0.23)) %>%
-#   ungroup() %>%
-#   unite("site_year", c("yrID", "siteID"),
-#         sep = "_") %>%
-#   dplyr::select(specID, COUNT, site_year) %>%
-#   pivot_wider(names_from = specID,
-#               values_from = COUNT,
-#               values_fill = 0) %>%
-#   column_to_rownames(var = "site_year") %>%
-#   mutate(across(everything(), ~replace_na(.x, 0)))
-# 
-
-# t1 <- t[1:64,]
-# t2 <- t[65:128,]
-# t3 <- t[129:194,]
-# 
-# t_cov <- cov(t1)
-# t_cov2 <- cov(t2)
-# t_cov3 <- cov(t3)
-# #get mean value of diagonal values that are not 0
-# diag_mean <- mean(diag(t_cov)[diag(t_cov) != 0])
-# diag_mean2 <- mean(diag(t_cov2)[diag(t_cov2) != 0])
-# diag_mean3 <- mean(diag(t_cov3)[diag(t_cov3) != 0])
-# #set all zero values on diagonal to be that mean value
-# #set all diagonals to the mean (this did work):
-# diag(t_cov) <- diag_mean
-# diag(t_cov2) <- diag_mean2
-# diag(t_cov3) <- diag_mean3
-# 
-# #top and bottom 5% of off-diagonal
-# (upper <- quantile(t_cov[!(col(t_cov) == row(t_cov)) & ((t_cov) > 0)], 
-#          probs = c(0.95)))
-# (lower <- quantile(t_cov[!(col(t_cov) == row(t_cov)) & ((t_cov) < 0)], 
-#          probs = c(0.05)))
-# (upper2 <- quantile(t_cov2[!(col(t_cov2) == row(t_cov2)) & ((t_cov2) > 0)], 
-#                    probs = c(0.95)))
-# (lower2 <- quantile(t_cov2[!(col(t_cov2) == row(t_cov2)) & ((t_cov2) < 0)], 
-#                    probs = c(0.05)))
-# (upper3 <- quantile(t_cov3[!(col(t_cov3) == row(t_cov3)) & ((t_cov3) > 0)], 
-#                    probs = c(0.95)))
-# (lower3 <- quantile(t_cov3[!(col(t_cov3) == row(t_cov3)) & ((t_cov3) < 0)], 
-#                    probs = c(0.05)))
-# 
-# 
-# #find mean of values that are positivie but less than the upper quantile
-# umean <- mean(t_cov[!(col(t_cov) == row(t_cov)) & ((t_cov) < upper) & ((t_cov) > 0)])
-# #set all extreme positive values to this mean
-# t_cov[!(col(t_cov) == row(t_cov)) & ((t_cov) >= upper)] <- umean
-# 
-# #find the mean of values tha are negative but greater than the lower quantile
-# lmean <- mean(t_cov[!(col(t_cov) == row(t_cov)) & ((t_cov) > lower) & ((t_cov) < 0)])
-# #set all extreme negative values to this mean
-# t_cov[!(col(t_cov) == row(t_cov)) & ((t_cov) < 0) & (t_cov <= lower)] <- lmean
-# 
-# #get off diagonal mean that is not 0
-# odiag_mean <- mean(t_cov[!t_cov == 0])
-# #set any zero values to that off diagonal mean
-# t_cov[t_cov == 0] <- odiag_mean
-# 
-# #find mean of values that are positivie but less than the upper quantile
-# umean2 <- mean(t_cov2[!(col(t_cov2) == row(t_cov2)) & ((t_cov2) < upper2) & ((t_cov2) > 0)])
-# #set all extreme positive values to this mean
-# t_cov2[!(col(t_cov2) == row(t_cov2)) & ((t_cov2) >= upper2)] <- umean2
-# 
-# #find the mean of values tha are negative but greater than the lower quantile
-# lmean2 <- mean(t_cov2[!(col(t_cov2) == row(t_cov2)) & ((t_cov2) > lower2) & ((t_cov2) < 0)])
-# #set all extreme negative values to this mean
-# t_cov2[!(col(t_cov2) == row(t_cov2)) & ((t_cov2) < 0) & (t_cov2 <= lower2)] <- lmean2
-# 
-# #get off diagonal mean that is not 0
-# odiag_mean2 <- mean(t_cov2[!t_cov2 == 0])
-# #set any zero values to that off diagonal mean
-# t_cov2[t_cov2 == 0] <- odiag_mean2
-# 
-# #find mean of values that are positivie but less than the upper quantile
-# umean3 <- mean(t_cov3[!(col(t_cov3) == row(t_cov3)) & ((t_cov3) < upper3) & ((t_cov3) > 0)])
-# #set all extreme positive values to this mean
-# t_cov3[!(col(t_cov3) == row(t_cov3)) & ((t_cov3) >= upper3)] <- umean3
-# 
-# #find the mean of values tha are negative but greater than the lower quantile
-# lmean3 <- mean(t_cov3[!(col(t_cov3) == row(t_cov3)) & ((t_cov3) > lower3) & ((t_cov3) < 0)])
-# #set all extreme negative values to this mean
-# t_cov3[!(col(t_cov3) == row(t_cov3)) & ((t_cov3) < 0) & (t_cov3 <= lower3)] <- lmean3
-# 
-# #get off diagonal mean that is not 0
-# odiag_mean3 <- mean(t_cov3[!t_cov3 == 0])
-# #set any zero values to that off diagonal mean
-# t_cov3[t_cov3 == 0] <- odiag_mean3
-# 
-# #invert to get precision matrix
-# omega.init <- ginv(t_cov)
-# #these are currently not working
-# omega.init1 <- ginv(t_cov)
-# omega.init2 <- ginv(t_cov2)
-# omega.init3 <- ginv(t_cov3)
-
 
 # random effects ----------------------------------------------------------
 
