@@ -418,10 +418,212 @@ Ploughe 2023</a></td>
 </tbody>
 </table>
 </div>
-<div id="code-structure" class="section level2">
-<h2>Code structure</h2>
+<div id="folder-structure" class="section level2">
+<h2>Folder structure</h2>
 <p>Each dataset has a similar file and folder organization structure
 that corresponds to the two-part modeling process.</p>
+<ol style="list-style-type: decimal">
+<li><p><strong>MSAM/MSOM folders</strong>: Any folder with the label
+<em>MSAM</em> or <em>MSOM</em> corresponds to the first part of the
+two-part modeling process in which we used multi-species (community)
+occupancy and abundance models to account for imperfect detection in
+species abundances and presences.</p></li>
+<li><p><strong>SAM folders</strong>: Any folder with the label
+<em>SAM</em> corresponds to the second part of the two-part modeling
+process in which we used a regression model with a stochastic antecedent
+modeling structure (<a href="https://onlinelibrary.wiley.com/doi/abs/10.1111/ele.12399">Ogle et
+al. 2015</a>) to model community change based on environmental
+covariates.</p></li>
+</ol>
+</div>
+<div id="code-folders-structure" class="section level2">
+<h2>1 Code folders structure</h2>
+<p>All code is written in R and JAGS languages. Code has been divided
+into “data prep” and “analyses” folders for each dataset. These folders
+are then subdivided into code scripts for each model (MSAM/MSOM and
+SAM).</p>
+<div id="data-prep-folders" class="section level3">
+<h3>1.1 Data prep folders</h3>
+<div id="msam-data-prep-folders" class="section level4">
+<h4>1.1.1 MSAM data prep folders</h4>
+<p>These folders contain code scripts to incorporate raw community data
+alongside any covariates to detection for each dataset exported both as
+a tidy dataframe:</p>
+<ul>
+<li><strong>[dataset] -&gt; data_outputs -&gt; MSAM/MSOM -&gt;
+[all_data].csv</strong></li>
+</ul>
+<p>and as a list of objects for the JAGS models</p>
+<ul>
+<li><strong>[dataset] -&gt; data_outputs -&gt; MSAM/MSOM -&gt;
+model_inputs -&gt; [dataset_list].RDS</strong></li>
+</ul>
+</div>
+<div id="sam-data-prep-folders" class="section level4">
+<h4>1.1.2 SAM data prep folders</h4>
+<p>These folders contain code scripts to incorporate exported community
+change metrics from the MSAM/MSAM for each dataset alongside
+environmental covariates exports these datasets as a tidy dataframe:</p>
+<ul>
+<li><strong>[dataset] -&gt; data_outputs -&gt; SAM -&gt; data_prep -&gt;
+[dataset_stability].csv</strong></li>
+</ul>
+</div>
+</div>
+<div id="analysis-folders" class="section level3">
+<h3>1.2 Analysis folders</h3>
+<div id="msam-analysis-folders" class="section level4">
+<h4>1.2.1 MSAM analysis folders</h4>
+<p>These folders contain a set of scripts that:</p>
+<ol style="list-style-type: decimal">
+<li><p>Test each model prior to running on the computing cluster
+(<code>test_model.R</code> or <code>run_model.R</code> scripts)</p></li>
+<li><p>Evaluate convergence (<code>convergence.R</code> scripts) and
+export figures in Supporting Information (SI Figures 1-4)</p></li>
+<li><p>Evaluate goodness-of-fit (<code>GOF.R</code> scripts) and export
+figures in Supporting Information (SI Figures 9-12)</p></li>
+</ol>
+<p>These folders also contains a “jags” or “models” folder that has the
+JAGS model for each MSAM/MSOM.</p>
+</div>
+<div id="sam-analysis-folders" class="section level4">
+<h4>1.2.2 SAM analysis folders</h4>
+<p>These folders contain a set of scripts that:</p>
+<ol style="list-style-type: decimal">
+<li><p>Create a data list to import into JAGS (<code>list_prep.R</code>
+scripts). These data lists are saved in:</p>
+<ul>
+<li><strong>[dataset] -&gt; data_outputs -&gt; SAM -&gt; model_inputs
+-&gt; [data_list].RDS</strong></li>
+</ul></li>
+<li><p>Test or run the SAM model (depending on dataset size, some of
+these were run on a computing cluster; <code>run_model.R</code> or
+<code>test_model.R</code> scripts)</p></li>
+<li><p>Check convergence for each SAM model (<code>convergence.R</code>
+scripts; though for some datasets, convergence was evaluated in the
+model running process) and export figures in Supporting Information (SI
+Figures 5-8)</p></li>
+<li><p>Evaluate goodness-of-fit of each model (<code>GOF.R</code>
+scripts) and export figures in Supporting Information (SI Figures
+16-19)</p></li>
+</ol>
+<p>These folders also contains a “jags” or “models” folder that has the
+JAGS model for each SAM regression model.</p>
+</div>
+</div>
+</div>
+<div id="data-outputs-folders-structure" class="section level2">
+<h2>2 Data outputs folders structure</h2>
+<p>Data outputs are divided into intermediate objects for the MSAM/MSOM
+and SAM models. These include these intermediate data files:</p>
+<div id="msammsom" class="section level3">
+<h3>2.1 MSAM/MSOM</h3>
+<ul>
+<li>tidy dataframe of all community data and detection covariates</li>
+<li>inputs for MSAM/MSOM models in the form of lists</li>
+</ul>
+</div>
+<div id="sam" class="section level3">
+<h3>2.2 SAM</h3>
+<ul>
+<li>tidy dataframe of all community change and environmental
+covariates</li>
+<li>inputs for the SAM models in the form of lists</li>
+<li>(Sometimes) output summaries from the SAM model if it was run on a
+local computer</li>
+</ul>
+</div>
+<div id="metadata" class="section level3">
+<h3>2.3 metadata</h3>
+<ul>
+<li>data on site, year, and species IDs to link back to change metrics
+calculated from the MSAM/MSOM</li>
+</ul>
+</div>
+</div>
+<div id="data-raw-folders-structure" class="section level2">
+<h2>3 Data raw folders structure</h2>
+<p>These data are previously published (see sources in above table) and
+too large to commit to GitHub. In all relevant scripts, we provide a
+link to a data object (DOI or website) where data can be downloaded and
+accessed. Raw data is split up between raw community data (in the main
+data_raw folder) and a subfolder labeled “environmental” which contains
+all the datasets that contain environmental covariates for each
+dataset.</p>
+</div>
+<div id="monsoon-folders-structure" class="section level2">
+<h2>4 Monsoon folders structure</h2>
+<p>Monsoon is the computing cluster at Northern Arizona University where
+all models were run that could not be run on a local computer. These
+folders are split up between MSAM/MSOM and SAM subfolders that contain
+subfolders “inputs” and “outputs”</p>
+<div id="inputs-folders" class="section level3">
+<h3>4.1 inputs folders</h3>
+<p>These folders contain all the input scripts and data to run JAGS
+models on monsoon and extract community change metrics, convergence,
+goodness-of-fit, and model summaries</p>
+</div>
+<div id="outputs-folders" class="section level3">
+<h3>4.2 outputs folders</h3>
+<p>These folders contain all the output data objects from Monsoon,
+including model summaries, convergence checks, and goodness-of-fit
+objects</p>
+</div>
+</div>
+<div id="visualizations-folder" class="section level2">
+<h2>5 05_visualizations folder</h2>
+<p>This folder compiles the results from all datasets to create the
+figures in the manuscript.</p>
+<div id="code-folder" class="section level3">
+<h3>5.1 code folder</h3>
+<p>This folder contains all the code to generate the main and supporting
+figures for the manuscript, including:</p>
+<ol style="list-style-type: decimal">
+<li><code>detection_histograms.R</code>: Code to create supplementary
+figures exploring detection and rarity in each dataset (SI Figure
+13).</li>
+<li><code>detection_partialplots.R</code>: Code to create effects plots
+for detection covariates in the MSAM/MSOM models in Figure 2.</li>
+<li><code>raw_corrected_boxplots.R</code>: Code to create the violin
+plots in Figure 3 and also perform the post-hoc analysis of dataset type
+(observed vs. modeled) and predicted change (SI Figure 14).</li>
+<li><code>raw_corrected_dissimilarity.R</code>: Code to create time
+series of example site community change in Figure 4.</li>
+<li><code>sam_model_results.R</code>: Code to create effects plots and
+partial plots for the environmental regression (SAM) models (Figure 5,
+SI Figure 15)</li>
+</ol>
+</div>
+<div id="viz_data-folder" class="section level3">
+<h3>5.2 viz_data folder</h3>
+<p>This folder contains data exported from elsewhere (monsoon and
+data_output folders, depending on the dataset) used to generate figures
+in the figures R scripts</p>
+</div>
+</div>
+<div id="pictures-folder" class="section level2">
+<h2>6 pictures folder</h2>
+<p>This folder contains exported figures from R for both the main text
+and for the Supporting Information. It also contains a conceptual figure
+generated in design software to highlight the modeling process (Figure
+1)</p>
+<div id="detection_models" class="section level3">
+<h3>6.1 detection_models</h3>
+<p>This folder contains all the main text figures generated from the
+MSAM/MSOM model</p>
+</div>
+<div id="sam_models" class="section level3">
+<h3>6.2 sam_models</h3>
+<p>This folder contains all the main text figures generated from the
+environmental regression (SAM) model</p>
+</div>
+<div id="supplementary" class="section level3">
+<h3>6.3 supplementary</h3>
+<p>This folder contains all the supplementary figures for both parts of
+the modeling process and any post-hoc analyses. This folder is divided
+between figures generated by the MSAM/MSOM and from the SAM modeling
+steps</p>
+</div>
 </div>
 </div>
 
