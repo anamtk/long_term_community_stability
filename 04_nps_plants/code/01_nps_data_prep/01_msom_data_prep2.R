@@ -20,16 +20,10 @@ for(i in package.list){library(i, character.only = T)}
 
 
 # Load data ---------------------------------------------------------------
+#Data can be found here:
+#https://irma.nps.gov/DataStore/Reference/Profile/2300890
 
 #read data into R
-# plants <- read.csv(here('04_nps_plants',
-#                         'data_raw',
-#                         'NPS_veg_data_PEFO_S.csv'))
-# 
-# str(plants)
-
-#this is in the new email from Megan, and includes the lifegroups and 
-#durations for all the plants
 plants <- read.csv(here('04_nps_plants',
                         'data_raw',
                         'NPS_veg_data.PEFO_S_v2.csv'))
@@ -435,59 +429,6 @@ n.sites <- max(Site.ID, na.rm = T)
 
 #YearID
 Year.ID <- 1:10
-
-# Make R covariance matrix ------------------------------------------------
-
-#n.species x n.species matrix of covariance between species abundances
-#for the omega parameter prior in the multivariate normal distribution
-# this omega will be somewhat of the covariance matrix similar to a
-# JSDM 
-
-#R needs to be positive definite,
-
-#trying shelby's code from Kiona/Jessica - need to ask what this means
-#R<-diag(x=0.1, n.species, n.species)
-
-#omega also needs priors, which I'm going to attempt to define using
-#covariance among species abundances, we'll see how it goes
-
-# t <- occ2 %>%
-#   group_by(yrID, quadID, SpecID) %>%
-#   summarise(presence = mean(presence, na.rm = T)) %>%
-#   ungroup() %>%
-#   unite("site_year", c("yrID", "quadID"),
-#         sep = "_") %>%
-#   dplyr::select(SpecID, presence, site_year) %>%
-#   pivot_wider(names_from = SpecID,
-#               values_from = presence,
-#               values_fill = 0) %>%
-#   column_to_rownames(var = "site_year") %>%
-#   mutate(across(everything(), ~replace_na(.x, 0)))
-# # 
-# 
-# ggcorrplot(cov(t), type = "lower",
-#            lab = FALSE)
-# 
-# t[colSums(t, na.rm = T) == 0]
-# t[rowSums(t, na.rm = T) == 0]
-# 
-# #set omega init to this - not sure if it will work with the NA values
-# #or if i will need to define those as a value?? we can try it...
-# t1 <- t[1:770,]
-# t1[colSums(t1, na.rm = T) == 0]
-# t2 <- t[771:1540,]
-# t3 <- t[1541:2310,]
-# 
-# cov1 <- cov(t1, use = "complete.obs")
-# cov1[cov1 == 0] <- 0.001
-# cov2 <- cov(t2, use = "complete.obs")
-# cov2[cov2 == 0] <- 0.001
-# cov3 <- cov(t3, use = "complete.obs")
-# cov3[cov3 == 0] <- 0.001
-# 
-# omega.init1 <- ginv(cov1)
-# omega.init2 <- ginv(cov2)
-# omega.init3 <- ginv(cov3)
 
 # Prep list for JAGS ------------------------------------------------------
 

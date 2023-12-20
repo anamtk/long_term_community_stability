@@ -29,26 +29,12 @@ data <- readRDS(here('04_nps_plants',
                      'model_inputs',
                      'nps_msam_multisite_subset.RDS'))
 
-# data <- list(n.species = data$n.species,
-#              n.quads = data$n.quads,
-#              n.yr = data$n.yr,
-#              n.rep = data$n.rep,
-#              cover = data$cover,
-#              lifegroup = data$lifegroup,
-#              n.groups = data$n.groups,
-#              y = data$y,
-#              z = data$z)
-
 # Set Initials ------------------------------------------------------------
 
 inits <- list(list(z = data$z),
               list(z = data$z),
               list(z = data$z))
 
-#ideally you would use the omega.init object to set inits, but it 
-#seems to break something with this dataset in particular,
-#let me know if this is happening to you and we can troubleshoot
-#inits <- function() list(omega = omega.init)
 
 # Parameters to save ------------------------------------------------------
 
@@ -73,7 +59,6 @@ model <- here("04_nps_plants",
               'code',
               '02_nps_analyses',
               'jags',
-              #"nps_MSOM_simple_SL.R")
               "nps_MSOM_simple_yrsite.R")
 
 Sys.time()

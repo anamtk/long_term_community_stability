@@ -37,6 +37,9 @@ for(i in package.list){library(i, character.only = T)}
 
 # Load data ---------------------------------------------------------------
 
+#Data can be found here:
+#https://portal.edirepository.org/nis/mapbrowse?packageid=knb-lter-sev.1.16
+
 c1 <- read.csv(here('03_sev_grasshoppers',
                     'data_raw',
                     'environmental',
@@ -67,6 +70,8 @@ c6 <- read.csv(here('03_sev_grasshoppers',
                     'environmental',
                     'Sevilleta_LTER_Hourly_Meteorological_Data_2020_2022.csv'))
 
+#Data can be found here:
+#https://portal.edirepository.org/nis/mapbrowse?packageid=knb-lter-sev.331.2
 npp <- read.csv(here('03_sev_grasshoppers',
                      'data_raw',
                      'environmental',

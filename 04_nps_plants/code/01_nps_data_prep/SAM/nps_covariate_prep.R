@@ -18,7 +18,8 @@ if(length(new.packages)) install.packages(new.packages)
 for(i in package.list){library(i, character.only = T)}
 
 # Load data ---------------------------------------------------------------
-
+#Data derived from PRISM
+#https://prism.oregonstate.edu/
 climate <- read.csv(here('04_nps_plants',
                         'data_raw',
                         'seasonal_ppt_vpd.csv'))

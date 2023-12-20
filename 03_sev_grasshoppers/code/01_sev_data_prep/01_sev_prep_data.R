@@ -34,6 +34,9 @@ for(i in package.list){library(i, character.only = T)}
 
 # Load data ---------------------------------------------------------------
 
+#Data can be found here:
+#https://portal.edirepository.org/nis/mapbrowse?packageid=knb-lter-sev.106.214969
+
 hopper <- read.csv(here('03_sev_grasshoppers',
                         'data_raw',
                         'sev106_grasshopper_counts.csv'))
@@ -235,43 +238,6 @@ Year.ID <- 1:28
 
 n.sites <- length(unique(Site.ID))
 
-# Make R covariance matrix ------------------------------------------------
-
-#n.species x n.species matrix of covariance between species abundances
-#for the omega parameter prior in the multivariate normal distribution
-# this omega will be somewhat of the covariance matrix similar to a
-# JSDM 
-
-#R needs to be positive definite,
-
-#trying shelby's code from Kiona/Jessica - need to ask what this means
-R<-diag(x=0.1, n.species, n.species)
-
-#omega also needs priors, which I'm going to attempt to define using
-#covariance among species abundances, we'll see how it goes
-
-t <- hopper4 %>%
-  group_by(yrID, siteID, speciesID) %>%
-  summarise(COUNT = mean(CNT, na.rm = T)) %>%
-  ungroup() %>%
-  unite("site_year", c("yrID", "siteID"),
-        sep = "_") %>%
-  dplyr::select(speciesID, COUNT, site_year) %>%
-  pivot_wider(names_from = speciesID,
-              values_from = COUNT,
-              values_fill = 0) %>%
-  column_to_rownames(var = "site_year") %>%
-  mutate(across(everything(), ~replace_na(.x, 0)))
-# 
-
-ggcorrplot(cor(t), type = "lower",
-           lab = FALSE)
-
-#set omega init to this - not sure if it will work with the NA values
-#or if i will need to define those as a value?? we can try it...
-omega.init <- cor(t)
-mean(omega.init, na.rm = T)
-omega.init[which(is.na(omega.init))] <- 0.04
 
 # Data list ---------------------------------------------------------------
 
@@ -289,10 +255,7 @@ data <- list(y = y,
              ymax = ymax,
              n.sites = n.sites,
              Year.ID = Year.ID,
-             Site.ID = Site.ID,
-             omega.init = omega.init,
-             #for omega prior
-             R = R)
+             Site.ID = Site.ID)
 
 #export that for using with the model
 saveRDS(data, here('03_sev_grasshoppers',

@@ -25,6 +25,9 @@ for(i in package.list){library(i, character.only = T)}
 #and also plant biomass data from the plots - this is yearly I think, but there
 #are lots of quadrats - so we can get an average
 #daily climate
+#Data can be found here:
+#https://portal.edirepository.org/nis/mapbrowse?packageid=knb-lter-knz.14.22
+
 climate <- read.csv(here('02_konza_birds',
                          'data_raw',
                          'environmental',
