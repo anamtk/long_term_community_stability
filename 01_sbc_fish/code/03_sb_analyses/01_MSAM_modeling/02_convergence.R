@@ -21,6 +21,9 @@ for(i in package.list){library(i, character.only = T)}
 source(here("00_functions",
             'plot_functions.R'))
 
+source(here('00_functions',
+            'tidy_functions.R'))
+
 # Load Data ---------------------------------------------------------------
 
 rhat <- readRDS(here('01_sbc_fish',
@@ -56,13 +59,7 @@ rhat6 <- readRDS(here('01_sbc_fish',
 
 # Graph RHat per parameter ------------------------------------------------
 
-rhat_graph_fun(list = rhat, rhat = 1.2)
 
-rhat_graph_fun(list = rhat2, rhat = 1.2)
-
-rhat_graph_fun(rhat4)
-
-rhat_graph_fun(rhat5)
 
 parms <- c("a1.Vis", "a2.Size",  "eps.site.star",
            'eps.year.star', 'mu.a0', 'mu.b0species',
