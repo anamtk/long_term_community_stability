@@ -1,35 +1,69 @@
 model{
+
+  #Multi-species occupancy model for NPS Plant dataset
+  #Ana Miller-ter Kuile, Kiona Ogle, Shelby Lamm
+  #September 2023
+
+  #This is a multi-species occupancy model for understory plants in the 
+  #NPS Southern Colorado Plateau Inventory and Monitoring Network
+  #Data are here:
+  #https://doi.org/10.57830/2300890
+
+  #Aspects of the model:
+  ## 1. Due to the structure of the data, this model differs from other
+  ## examples in this paper because different sites were surveyed in different years
+  ## so that indexing needed to be years and then sites within years vs. sites and then years
+  ## 2. There are no covariates on occupancy (biological process model)
+  ## 3. Occupancy depends on a species-level intercept and random effects of 
+  ## site within species and year within species which are identifiable
+  ## due to post-sweeping 
+  ## 4. Detection is based on a cover class (converted to median % for 
+  ## each class and life form (e.g., perennial vs. annual; grass vs. forb).
+  ## 5. Unlike the other models in this paper, because of the coding of 
+  ## sites within years, community dissimilarity is calcuated on posterior
+  ## samples from this model in R, versus coded directly into this model.
   
   for(k in 1:n.species){ #loop through all species in the community
-    for(t in 1:n.years){
-        for(i in 1:quads[t]){
-          
+    for(t in 1:n.years){ #loop for all years in dataset
+        for(i in 1:quads[t]){ #loop for all sites in the dataset for that year
+
+          #Biological Process model#
+          #latent occupancy is dependent on occupancy probability, psi, for
+          #that species in that year at that site
           z[k,t,i] ~ dbern(psi[k,t, i])
-          
+
+          #occupancy probability is dependent on species and 
+          #random effects of site within species and year
+          #within species
           logit(psi[k,t,i]) <- b0.species[k] +
             eps.site[Site.ID[t,i], k] +
             eps.year[Year.ID[t], k]
-          
-          for(r in 1:n.rep[t,i]){
-            
-            logit(p[k,t,i,r]) <- a0[k] +
+
+          #Observation Model:#
+          for(r in 1:n.rep[t,i]){ #the number of repeated surveys in year t for quadrat i
+
+            #detection probability, p:
+            logit(p[k,t,i,r]) <- a0[k] + #species-level intercept
               a1.Cover*cover[k] + #average cover for a species across all plots, proxy for "abundance/size"
-              a2.LifeGroup[lifegroup[k]]
-            
+              a2.LifeGroup[lifegroup[k]] #combo of lifespan nad type of plant
+
+            #Observed data are bernoulli distributed around detection probability
+            #times true occupancy for that species, year, site combo
             y[k,t,i,r] ~ dbern(p[k,t,i,r]*z[k,t,i])
-            
+
+            #replicated data to evaluate model fit
             y.rep[k,t,i,r] ~ dbern(p[k,t,i,r]*z[k,t,i])
             
           }
         }
 
     }
-    
-    #if we add in detection covariates
-    # #Detection intercept
+
+    #SPECIES-LEVEL PRIORS
+    # #Species-level Detection intercept
     a0[k] ~ dnorm(mu.a0, tau.a0)
     
-    #"baseline" detection at all covariates == 0
+    #"baseline" detection for a given species at all covariates == 0
     p0[k] <- ilogit(a0[k])
     
     #abundance model (biological process)
@@ -83,7 +117,6 @@ model{
   sig.eps.year ~ dunif(0, 10)
   tau.eps.year <- pow(sig.eps.year, -2)
 
-  #If we add detection covariates:
   # #Detection intercept
   mu.a0 ~ dnorm(0, 0.001)
   tau.a0 <- pow(sig.a0, -2)
@@ -103,17 +136,7 @@ model{
     a2.LifeGroup[g] ~ dnorm(0, 1E-3)
     }
 
-  # SL: error with running when this is set to 0
-  # added condition in regression for logit(p) so this is 0 when lifegroup = 1
-  # but will have a value other than 0 in the posterior results
   a2.LifeGroup[1] <- 0
-
-  #PRIORS FOR IMPUTING MISSING DATA
-  #Priors for mean and tau of missing covariates in the model
-  #mu.missingcover ~ dunif(-10, 10)
-  #sig.missingcover ~ dunif(0, 20)
-  #tau.missingcover <- pow(sig.missingcover, -2)
-
 
 
 }
