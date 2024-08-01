@@ -52,6 +52,8 @@ all_data2 <- all_data %>%
 
 # Prep data objects for model ---------------------------------------------
 
+all_data2 <- all_data2 %>%
+  filter(!is.na(observed_all))
 
 # Loop indexing -----------------------------------------------------------
 
@@ -64,9 +66,14 @@ n.transects <- length(unique(all_data2$transect_num))
 
 n.plots <- length(unique(all_data2$Plot))
 
+#going back 2 years
 n.lag <- all_data2 %>%
   dplyr::select(PPT:PPT_l7) %>%
   ncol()
+
+# n.lag <- all_data2 %>%
+#   dplyr::select(PPT:PPT_l20) %>%
+#   ncol()
 
 
 # Response data -----------------------------------------------------------
@@ -74,9 +81,7 @@ n.lag <- all_data2 %>%
 # diss <- as.vector(all_data2$mean)
 # var.estimate <- as.vector(all_data2$sd^2)
 
-diss <- as.vector(all_data2$mean)
-var.estimate <- as.vector(all_data2$sd^2)
-
+diss <- as.vector((all_data2$observed_all*(n.data-1) + 0.5)/n.data)
 
 # Random effects ----------------------------------------------------------
 
@@ -86,6 +91,11 @@ Plot.ID  <- all_data2 %>%
   as_vector()
 
 Transect.ID <- as.vector(all_data2$Transect.ID)
+
+# Transect.ID  <- all_data2 %>%
+#   distinct(Quad.ID, Transect.ID) %>%
+#   dplyr::select(Transect.ID) %>%
+#   as_vector()
 
 Quad.ID <- as.vector(all_data2$Quad.ID)
 
@@ -103,8 +113,7 @@ PPT <- all_data2  %>%
   as.matrix()
 
 sum(is.na(PPT))/(sum(is.na(PPT)) + sum(!is.na(PPT)))
-#~0.6% missing data (new - 5/6/24)
-#~8% missing data (old)
+#~8% missing data
 
 VPD <- all_data2 %>%
   dplyr::select(quadnum, EventYear, VPD:VPD_l7) %>%
@@ -118,8 +127,7 @@ VPD <- all_data2 %>%
   as.matrix()
 
 sum(is.na(VPD))/(sum(is.na(VPD)) + sum(!is.na(VPD)))
-#~0.6% missing data (new - 5/6/24)
-#~8% missing data (old)
+#~8% missing data
 
 
 # Combine data into a data list -------------------------------------------
@@ -131,7 +139,7 @@ data <- list(n.data = n.data,
              n.transects = n.transects,
              n.plots = n.plots,
              diss = diss,
-             var.estimate = var.estimate,
+             #var.estimate = var.estimate,
              Plot.ID = Plot.ID,
              Transect.ID = Transect.ID,
              Quad.ID = Quad.ID,
@@ -142,5 +150,5 @@ saveRDS(data, here('04_nps_plants',
                    "data_outputs",
                    'SAM',
                    "model_inputs",
-                   "nps_diss_SAM_input_data.RDS"))
+                   "nps_diss_SAM_input_data_raw.RDS"))
 

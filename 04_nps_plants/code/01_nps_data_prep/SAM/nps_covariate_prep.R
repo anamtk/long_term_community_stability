@@ -18,8 +18,7 @@ if(length(new.packages)) install.packages(new.packages)
 for(i in package.list){library(i, character.only = T)}
 
 # Load data ---------------------------------------------------------------
-#Data derived from PRISM
-#https://prism.oregonstate.edu/
+
 climate <- read.csv(here('04_nps_plants',
                         'data_raw',
                         'seasonal_ppt_vpd.csv'))
@@ -38,6 +37,9 @@ IDs <- read.csv(here('04_nps_plants',
                      'metadata',
                      'site_year_IDs.csv'), row.names=1)
 
+obs_nps <- readRDS(here('05_visualizations',
+                        'viz_data',
+                        'nps_observed_jaccard.RDS'))
 
 # Get response data in order ----------------------------------------------
 
@@ -79,27 +81,60 @@ vpd <- climate %>%
 
 # Get lags ----------------------------------------------------------------
 
+# ppt_lags <- ppt %>%
+#   group_by(Plot) %>%
+#   arrange(EventYear, season) %>%
+#   #this creates a column for every lag this season to 5 years ago
+#   do(data.frame(., setNames(shift(.$PPT, 1:20), c('PPT_l1', 'PPT_l2', 'PPT_l3',
+#                                                   'PPT_l4', 'PPT_l5',
+#                                                   'PPT_l6', 'PPT_l7',
+#                                                   'PPT_l8', 'PPT_l9',
+#                                                   'PPT_l10', 'PPT_l11', 
+#                                                   'PPT_l12', 'PPT_l13',
+#                                                   'PPT_l14','PPT_l15',
+#                                                   'PPT_l16','PPT_l17',
+#                                                   'PPT_l18','PPT_l19',
+#                                                   'PPT_l20')))) %>%
+#   ungroup() %>%
+#   #start in monsoon, which is when sampling ended
+#   filter(season == 3) %>%
+#   dplyr::select(-season)
+
 ppt_lags <- ppt %>%
   group_by(Plot) %>%
   arrange(EventYear, season) %>%
   #this creates a column for every lag this season to 5 years ago
-  do(data.frame(., setNames(shift(.$PPT, 1:20), c('PPT_l1', 'PPT_l2', 'PPT_l3',
+  do(data.frame(., setNames(shift(.$PPT, 1:10), c('PPT_l1', 'PPT_l2', 'PPT_l3',
                                                   'PPT_l4', 'PPT_l5',
                                                   'PPT_l6', 'PPT_l7',
                                                   'PPT_l8', 'PPT_l9',
-                                                  'PPT_l10', 'PPT_l11', 
-                                                  'PPT_l12', 'PPT_l13',
-                                                  'PPT_l14','PPT_l15',
-                                                  'PPT_l16','PPT_l17',
-                                                  'PPT_l18','PPT_l19',
-                                                  'PPT_l20')))) %>%
+                                                  'PPT_l10')))) %>%
   ungroup() %>%
   #start in monsoon, which is when sampling ended
   filter(season == 3) %>%
   dplyr::select(-season)
 
 
-#get npp lags:
+# #get npp lags:
+# vpd_lags <- vpd %>%
+#   group_by(Plot) %>%
+#   arrange(EventYear, season)  %>%
+#   #this creates a column for every lag this season to 5 years ago
+#   do(data.frame(., setNames(shift(.$VPD, 1:20), c('VPD_l1', 'VPD_l2', 'VPD_l3',
+#                                                   'VPD_l4', 'VPD_l5',
+#                                                   'VPD_l6', 'VPD_l7',
+#                                                   'VPD_l8', 'VPD_l9',
+#                                                   'VPD_l10', 'VPD_l11', 
+#                                                   'VPD_l12', 'VPD_l13',
+#                                                   'VPD_l14','VPD_l15',
+#                                                   'VPD_l16','VPD_l17',
+#                                                   'VPD_l18','VPD_l19',
+#                                                   'VPD_l20')))) %>%
+#   ungroup() %>%
+#   #start in monsoon, which is when sampling ended
+#   filter(season == 3) %>%
+#   dplyr::select(-season)
+
 vpd_lags <- vpd %>%
   group_by(Plot) %>%
   arrange(EventYear, season)  %>%
@@ -108,16 +143,12 @@ vpd_lags <- vpd %>%
                                                   'VPD_l4', 'VPD_l5',
                                                   'VPD_l6', 'VPD_l7',
                                                   'VPD_l8', 'VPD_l9',
-                                                  'VPD_l10', 'VPD_l11', 
-                                                  'VPD_l12', 'VPD_l13',
-                                                  'VPD_l14','VPD_l15',
-                                                  'VPD_l16','VPD_l17',
-                                                  'VPD_l18','VPD_l19',
-                                                  'VPD_l20')))) %>%
+                                                  'VPD_l10')))) %>%
   ungroup() %>%
   #start in monsoon, which is when sampling ended
   filter(season == 3) %>%
   dplyr::select(-season)
+
 
 
 # Combine datasets --------------------------------------------------------
@@ -127,12 +158,27 @@ all_data <- stability2 %>%
   left_join(vpd_lags, by = c("Plot", "EventYear"))
 
 
+# Combine with observed data ----------------------------------------------
+obs_nps2 <- obs_nps %>%
+  pivot_wider(names_from = "type",
+              values_from = "turnover") %>%
+  separate(plot_trans_quad,
+           into = c("Plot", "Transect", "Quadrat"),
+            sep = "_") %>%
+  mutate(Quadrat = as.numeric(Quadrat))
+
+all_data2 <- all_data %>%
+  left_join(obs_nps2, by = c("Plot", "Transect", "Quadrat", "EventYear"))
+
 # Check for correlation ---------------------------------------------------
 
 library(ggcorrplot)
 
+# dat1 <- all_data %>%
+#   dplyr::select(PPT:PPT_l20, VPD:VPD_l20)
+
 dat1 <- all_data %>%
-  dplyr::select(PPT:PPT_l20, VPD:VPD_l20)
+  dplyr::select(PPT:PPT_l10, VPD:VPD_l10)
 
 ggcorrplot(cor(dat1, use = "complete.obs"), 
            type = "upper", lab= TRUE)
@@ -140,7 +186,7 @@ ggcorrplot(cor(dat1, use = "complete.obs"),
 
 # Export ------------------------------------------------------------------
 
-write.csv(all_data,
+write.csv(all_data2,
           here("04_nps_plants",
                "data_outputs",
                'SAM',
