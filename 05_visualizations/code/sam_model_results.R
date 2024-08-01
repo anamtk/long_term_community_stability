@@ -41,6 +41,7 @@ source(here('00_functions',
 fish_sam <- readRDS(here('01_sbc_fish',
                          'monsoon',
                          'SAM',
+                         'modeled',
                          'outputs',
                          'fish_SAM_summary.RDS'))
 
@@ -67,6 +68,7 @@ bird_sam <- readRDS(here('02_konza_birds',
                          'SAM',
                          'model_outputs',
                          'knz_SAM_summary.RDS'))
+
 
 bird_bray <- read.csv(here('02_konza_birds',
                            'data_outputs',
