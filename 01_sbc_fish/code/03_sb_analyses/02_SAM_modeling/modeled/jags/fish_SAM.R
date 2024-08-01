@@ -16,13 +16,28 @@ model{
     #and var.process is something we're tryign to estimate,
     #basically, the rest of the variation not accounted for
     phi[i] <- (((1-mu[i])*mu[i])/(var.estimate[i] + var.process))-1
+    #var.process[i] = (1-mu[i])*mu[i]/(1+phi) - var.estimate[i]
 
+    #ones trick to get var.process to be always >0
+    #ones[i] <- 1
+    
+    #u returns 0 if var.process <0 or >100
+    #U[i] <- (var.process[i]>0)*(var.process[i]<100)/100
+    
+    #equivalent using step function
+    #U[i] <-  step(var.process[i])*(100-var.process[i])/100
+    
+    #prior for ones for var.process
+    #ones[i] ~ dbern(U[i])
+    
     #alpha and beta are based on mu and phi values
     #sometimes these values send alpha and beta outside
     #the domain, so we have extra code below to get them to
     #stay where they belong
     alphaX[i] <- mu[i] * phi[i]
     betaX[i] <- (1 - mu[i]) * phi[i]
+    # alphaX[i] <- mu[i] * phi
+    # betaX[i] <- (1 - mu[i]) * phi
     
     #here is where we get alpha and beta to stay in their
     #domain
@@ -36,7 +51,7 @@ model{
 
     #Regression of mu, which is dependent on antecedent
     #kelp biomass, temperature, and chl-a
-      logit(mu[i]) <- b0.transect[Transect.ID[i]] +
+      logit(mu[i]) <- b0.site[Site.ID[i]] +
         b[1]*AntKelp[i] +
         b[2]*AntTemp[i]# +
         #removed due to overfitting:
@@ -93,6 +108,8 @@ model{
     wA[t] <- deltaA[t]/sumA
     #and follow a relatively uninformative gamma prior
     deltaA[t] ~ dgamma(1,1)
+    
+    cumm.kelpwt[t] <- sum(wA[1:t])
   }
   
   #Sum of the weights for temp lag
@@ -105,14 +122,16 @@ model{
     wB[t] <- deltaB[t]/sumB
     #and follow a relatively uninformative gamma prior
     deltaB[t] ~ dgamma(1,1)
+    
+    cumm.tempwt[t] <- sum(wB[1:t])
   }
   
   #BETA PRIORS
   #HIERARCHICAL STRUCTURE PRIORS
   #hierarchical centering of transects on sites on b0
-   for(t in 1:n.transects){
-     b0.transect[t] ~ dnorm(b0.site[Site.ID[t]], tau.transect)
-   }
+   # for(t in 1:n.transects){
+   #   b0.transect[t] ~ dnorm(b0.site[Site.ID[t]], tau.transect)
+   # }
    
    for(s in 1:n.sites){
      b0.site[s] ~ dnorm(b0, tau.site)
@@ -127,11 +146,11 @@ model{
   
   #for low # of levels, from Gellman paper - define sigma
   # as uniform and then precision in relation to this sigma
-  sig.transect ~ dunif(0, 10)
+  #sig.transect ~ dunif(0, 10)
   sig.site ~ dunif(0, 10)
   #sig.year ~ dunif(0, 10)
   
-  tau.transect <- 1/pow(sig.transect,2)
+  #tau.transect <- 1/pow(sig.transect,2)
   tau.site <- 1/pow(sig.site,2)
   #tau.year <- 1/pow(sig.year, 2)
   
@@ -144,6 +163,8 @@ model{
   # var.process <- pow(sig.process, 2)
 
   var.process ~ dunif(0, min(diff[]))
+  #phi ~ dgamma(1,1)
+
 
   #MISSING DATA PRIORS
   mu.kelp ~ dunif(-10, 10)

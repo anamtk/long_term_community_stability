@@ -47,11 +47,16 @@ Year.ID <- all_data$yrID
 n.sites <- length(unique(all_data$SITE))
 
 Site.ID <- all_data %>%
-  distinct(siteID, SITE) %>%
-  arrange(siteID) %>%
-  mutate(SITE = as.numeric(as.factor(SITE))) %>%
-  dplyr::select(SITE) %>%
-  as_vector()
+    mutate(SITE = as.numeric(as.factor(SITE))) %>%
+    dplyr::select(SITE) %>%
+    as_vector()
+  
+# Site.ID <- all_data %>%
+#   distinct(siteID, SITE) %>%
+#   arrange(siteID) %>%
+#   mutate(SITE = as.numeric(as.factor(SITE))) %>%
+#   dplyr::select(SITE) %>%
+#   as_vector()
 
 n.kelplag <- all_data %>%
   dplyr::select(DRY_GM2:DRY_GM2_l5) %>%
@@ -114,6 +119,7 @@ data <- list(n.data = n.data,
              var.estimate = var.estimate,
              n.kelplag = n.kelplag,
              Kelp = Kelp,
+             ones = rep(1, n.data),
              n.templag = n.templag,
              Temp = Temp,
              Chla = Chla)
