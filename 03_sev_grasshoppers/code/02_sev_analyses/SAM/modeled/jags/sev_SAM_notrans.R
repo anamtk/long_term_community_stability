@@ -15,7 +15,7 @@ model{
     #correction model) 
     #and var.process is something we're tryign to estimate,
     #basically, the rest of the variation not accounted for
-    phi[i] <- (((1-mu[i])*mu[i])/(var.estimate[i] + var.process))-1
+    phi[i] <- (((1-mu[i])*mu[i])/(var.process))-1
     
     #alpha and beta are based on mu and phi values
     #sometimes these values send alpha and beta outside
@@ -32,11 +32,16 @@ model{
     #to get a good estimate of a prior for var.process, we
     #track the difference between these two values for each
     #data point
-    diff[i] <- (1-mu[i])*mu[i] - var.estimate[i]
+    #diff[i] <- (1-mu[i])*mu[i] - var.estimate[i]
     
     #Regression of mu, which is dependent on antecedent
     #temperature, precipitation and npp
-    logit(mu[i]) <- b0.transect[Transect.ID[i]] +
+    # logit(mu[i]) <- b0.transect[Transect.ID[i]] +
+    #   b[1]*AntTemp[i] +
+    #   b[2]*AntPPT[i] +
+    #   b[3]*AntNPP[i]
+    
+    logit(mu[i]) <- b0.web[Web.ID[i]] +
       b[1]*AntTemp[i] +
       b[2]*AntPPT[i] +
       b[3]*AntNPP[i]
@@ -103,6 +108,7 @@ model{
     #and follow a relatively uninformative gamma prior
     deltaA[t] ~ dgamma(1,1)
     
+    cumm.tempwt[t] <- sum(wA[1:t])
 
   }
   
@@ -112,6 +118,7 @@ model{
     #and follow a relatively uninformative gamma prior
     deltaB[t] ~ dgamma(1,1)
     
+    cumm.pptwt[t] <- sum(wB[1:t])
   }
   
   #sum of weights for the npp lag
@@ -124,6 +131,8 @@ model{
     #the weights for npp
     wC[t] <- deltaC[t]/sumC
     deltaC[t] ~ dgamma(1,1)
+    
+    cumm.nppwt[t] <- sum(wC[1:t])
   }
   
 
@@ -132,9 +141,9 @@ model{
   #i didn't use "site" since there are only two levels, but could
   #add it in if we wanted later
   #hierarchical centering of transects on webs on b0
-  for(t in 1:n.transects){
-    b0.transect[t] ~ dnorm(b0.web[Web.ID[t]], tau.transect)
-  }
+  # for(t in 1:n.transects){
+  #   b0.transect[t] ~ dnorm(b0.web[Web.ID[t]], tau.transect)
+  # }
   
   for(w in 1:n.webs){
     b0.web[w] ~ dnorm(b0, tau.web)
@@ -148,11 +157,11 @@ model{
   
   sig.web ~ dunif(0, 10)
   tau.web <- 1/pow(sig.web,2)
-  sig.transect ~ dunif(0, 10)
-  tau.transect <- 1/pow(sig.transect,2)
-  
+  # sig.transect ~ dunif(0, 10)
+  # tau.transect <- 1/pow(sig.transect,2)
+  # 
   #PRior for overall process error
-  var.process ~ dunif(0, min(diff[]))
+  var.process ~ dunif(0, 100)
   
   #MISSING DATA PRIORS
   mu.temp ~ dunif(-10, 10)

@@ -11,7 +11,9 @@ Sys.time()
 
 
 # Load packages,
-package.list <- c('jagsUI',"coda") 
+package.list <- c('jagsUI',"coda", 'dplyr',
+                  'stringr', 'purrr', 'tibble',
+                  'magrittr', 'tidyr') 
 
 
 ## Installing them if they aren't already on the computer
@@ -25,17 +27,18 @@ for(i in package.list){library(i, character.only = T)}
 
 # Load model --------------------------------------------------------------
 
-mod <- readRDS( file = "/scratch/atm234/sev_hoppers/SAM/outputs/sev_SAM_model4.RDS")
+mod <- readRDS( file = "/scratch/atm234/sev_hoppers/SAM/raw/outputs/sev_SAM_model_raw.RDS")
+
 
 # Get summary of model -------------------------------------------------
 
 sum <- summary(mod$samples)
 
 saveRDS(sum, 
-        file = "/scratch/atm234/sev_hoppers/SAM/outputs/sev_SAM_summary.RDS")
+        file = "/scratch/atm234/sev_hoppers/SAM/raw/outputs/sev_SAM_raw_summary.RDS")
 
 
-# Calculate cummulative weights -------------------------------------------
+# cummulative weights -----------------------------------------------------
 
 samples <- mod$sims.list
 
@@ -49,18 +52,18 @@ wA <- as.data.frame(samples$wA) %>%
   ungroup() %>%
   dplyr::select(weightID, cumm.weight) %>%
   group_by(weightID) %>%
-  summarise(median = median(cumm.weight),
-            LCI = quantile(cumm.weight, 0.025),
-            UCI = quantile(cumm.weight, 0.975)) %>%
+  summarise(median_obs = median(cumm.weight),
+            LCI_obs = quantile(cumm.weight, 0.025),
+            UCI_obs = quantile(cumm.weight, 0.975)) %>%
   mutate(lag = substr(weightID, 2, (nchar(weightID)))) %>%
   mutate(lag = as.numeric(lag)) %>%
   mutate(variable = "Temperature") %>%
   mutate(dataset = "SEV grasshoppers") %>%
   dplyr::select(lag, variable, dataset,
-                LCI, median, UCI)
+                LCI_obs, median_obs, UCI_obs)
 
 saveRDS(wA, 
-        file = "/scratch/atm234/sev_hoppers/SAM/outputs/sev_SAM_cummtemp.RDS")
+        file = "/scratch/atm234/sev_hoppers/SAM/raw/outputs/sev_SAM_cummtemp_raw.RDS")
 
 wB <- as.data.frame(samples$wB) %>%
   rownames_to_column(var = 'iteration') %>%
@@ -72,21 +75,15 @@ wB <- as.data.frame(samples$wB) %>%
   ungroup() %>%
   dplyr::select(weightID, cumm.weight) %>%
   group_by(weightID) %>%
-  summarise(median = median(cumm.weight),
-            LCI = quantile(cumm.weight, 0.025),
-            UCI = quantile(cumm.weight, 0.975))%>%
+  summarise(median_obs = median(cumm.weight),
+            LCI_obs = quantile(cumm.weight, 0.025),
+            UCI_obs = quantile(cumm.weight, 0.975))%>%
   mutate(lag = substr(weightID, 2, (nchar(weightID)))) %>%
   mutate(lag = as.numeric(lag)) %>%
   mutate(variable = "Precipitation") %>%
   mutate(dataset = "SEV grasshoppers") %>%
   dplyr::select(lag, variable, dataset,
-                LCI, median, UCI)
+                LCI_obs, median_obs, UCI_obs)
 
 saveRDS(wB, 
-        file = "/scratch/atm234/sev_hoppers/SAM/outputs/sev_SAM_cummppt.RDS")
-
-
-
-
-
-
+        file = "/scratch/atm234/sev_hoppers/SAM/raw/outputs/sev_SAM_cummppt_raw.RDS")

@@ -25,7 +25,7 @@ data_list <- readRDS(here('03_sev_grasshoppers',
                           "data_outputs",
                           'SAM',
                           "model_inputs",
-                          "sev_bray_SAM_input_data.RDS"))
+                          "sev_bray_SAM_input_data_raw_notrans.RDS"))
 
 
 # Parameters to save ------------------------------------------------------
@@ -42,7 +42,10 @@ params <- c('b0.web',
             'deltaC',
             'sig.web',
             'sig.transect',
-            'var.process')
+            'var.process',
+            'cumm.tempwt',
+            'cumm.pptwt',
+            'cumm.nppwt')
 
 
 
@@ -52,8 +55,9 @@ model <- here('03_sev_grasshoppers',
               "code", 
               "02_sev_analyses",
               'SAM',
+              'raw',
               "jags",
-              "sev_SAM.R")
+              "sev_SAM_raw_notrans.R")
 
 Sys.time()
 mod <- jagsUI::jags(data = data_list,
@@ -62,7 +66,8 @@ mod <- jagsUI::jags(data = data_list,
                     parameters.to.save = params,
                     parallel = TRUE,
                     n.chains = 3,
-                    n.iter = 1,
+                    n.burnin = 2000,
+                    n.iter = 4000,
                     DIC = TRUE)
 
 Sys.time()
