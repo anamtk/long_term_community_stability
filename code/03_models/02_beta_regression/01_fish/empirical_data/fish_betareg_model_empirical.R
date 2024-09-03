@@ -1,0 +1,151 @@
+model{
+  
+  #this model code is the same across any dataset except for
+  #the particular covariates that are input into the SAM
+  #regression
+  
+  #this model is a simplified version of the model that 
+  #incorporates imperfect detection. It is different only
+  #in the calculation of phi, for which the 
+  #other version is commented out and comes from the uncertainty
+  #in the estimate from the modeled dissimilarlity
+  
+  
+  for(i in 1:n.data){
+    
+    #-------------------------------------## 
+    # Likelihood ###
+    #-------------------------------------##
+    
+    #bray is proportional, so beta distribution works here
+    bray[i] ~ dbeta(alpha[i], beta[i])
+    
+    #var.process is scalar but could be made dependent on site/other variables
+    #phi incorporates mu (mean estimate)
+    #and var.process is something we're tryign to estimate
+    phi[i] <- (((1-mu[i])*mu[i])/var.process)-1
+    
+    #the more complicated version when using modleed data:
+    #phi[i] <- (((1-mu[i])*mu[i])/(var.estimate[i] + var.process))-1
+    
+    #alpha and beta are based on mu and phi values
+    #sometimes these values send alpha and beta outside
+    #the domain, so we have extra code below to get them to
+    #stay where they belong
+    alphaX[i] <- mu[i] * phi[i]
+    betaX[i] <- (1 - mu[i]) * phi[i]
+    
+    #here is where we get alpha and beta to stay in their
+    #domain
+    alpha[i] <- max(0.01, alphaX[i])
+    beta[i] <- max(0.01, betaX[i])
+    
+    
+    #Regression of mu, which is dependent on antecedent
+    #kelp biomass, temperature, and chl-a
+    logit(mu[i]) <- b0.site[Site.ID[i]] +
+      b[1]*AntKelp[i] +
+      b[2]*AntTemp[i]
+    
+    #-------------------------------------## 
+    # SAM summing ###
+    #-------------------------------------##
+    
+    #summing the antecedent values
+    AntKelp[i] <- sum(KelpTemp[i,]) #summing across the total number of antecedent years
+    AntTemp[i] <- sum(TempTemp[i,]) #summing across the total num of antecedent months
+    
+    #Generating each year's weight to sum above
+    for(t in 1:n.kelplag){ #number of time steps we're going back in the past
+      KelpTemp[i,t] <- Kelp[i,t]*wA[t] 
+      
+      #missing data
+      Kelp[i,t] ~ dnorm(mu.kelp, tau.kelp)
+    }
+    
+    #generating each month's weight to sum above
+    for(t in 1:n.templag){ #number of time steps we're going back in the past
+      TempTemp[i,t] <- Temp[i,t]*wB[t] 
+      
+      #missing data
+      Temp[i,t] ~ dnorm(mu.temp, tau.temp)
+    }
+    
+    #-------------------------------------## 
+    # Goodness of fit parameters ###
+    #-------------------------------------##
+    # 
+    # #replicated data
+    bray.rep[i] ~ dbeta(alpha[i], beta[i])
+    # 
+    # #residuals - is this still right?
+    resid[i] <- bray[i] - mu[i]
+    
+  }
+  
+  #-------------------------------------## 
+  # Priors ###
+  #-------------------------------------##
+  
+  # ANTECEDENT CLIMATE PRIORS
+  #Sum of the weights for kelp lag
+  sumA <- sum(deltaA[]) #all the kelp weights
+  #Employing "delta trick" to give vector of weights dirichlet priors
+  #this is doing the dirichlet in two steps 
+  #see Ogle et al. 2015 SAM model paper in Ecology Letters
+  for(t in 1:n.kelplag){ #for the total number of lags
+    #the weights for kelp - getting the weights to sum to 1
+    wA[t] <- deltaA[t]/sumA
+    #and follow a relatively uninformative gamma prior
+    deltaA[t] ~ dgamma(1,1)
+    
+    #determine cumulative kelp weights
+    cumm.kelpwt[t] <- sum(wA[1:t])
+  }
+  
+  #Sum of the weights for temp lag
+  sumB <- sum(deltaB[]) #all the temp weights
+  #Employing "delta trick" to give vector of weights dirichlet priors
+  #this is doing the dirichlet in two steps 
+  #see Ogle et al. 2015 SAM model paper in Ecology Letters
+  for(t in 1:n.templag){ #for the total number of lags
+    #the weights for kelp - getting the weights to sum to 1
+    wB[t] <- deltaB[t]/sumB
+    #and follow a relatively uninformative gamma prior
+    deltaB[t] ~ dgamma(1,1)
+    
+    #determine cumulative temperature weights
+    cumm.tempwt[t] <- sum(wB[1:t])
+  }
+  
+  #BETA PRIORS
+  #HIERARCHICAL STRUCTURE PRIORS
+  #site on overall intercept
+  for(s in 1:n.sites){
+    b0.site[s] ~ dnorm(b0, tau.site)
+  }
+  
+  b0 ~ dnorm(0, 1E-2)
+  
+  #for low # of levels, from Gellman paper - define sigma
+  # as uniform and then precision in relation to this sigma
+  sig.site ~ dunif(0, 10)
+  
+  tau.site <- 1/pow(sig.site,2)
+  
+  for(i in 1:2){
+    b[i] ~ dnorm(0, 1E-2)
+  }
+  
+  #MISSING DATA PRIORS
+  mu.kelp ~ dunif(-10, 10)
+  sig.kelp ~ dunif(0, 20)
+  tau.kelp <- pow(sig.kelp, -2)
+  mu.temp ~ dunif(-10, 10)
+  sig.temp ~ dunif(0, 20)
+  tau.temp <- pow(sig.temp, -2)
+
+  #PRior for overall process error
+  var.process ~ dunif(0, 100)
+
+}
