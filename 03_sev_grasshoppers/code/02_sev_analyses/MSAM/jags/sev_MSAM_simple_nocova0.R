@@ -38,11 +38,18 @@ model{
         
       }
       
+      
     }
     
+    #to make this a simplified version of the other models,
+    #can just create this regression instead of making it
+    #t0tally stochastic
+    logit(p[k]) <- a0[k]
+    #in this model, "p" is equivalent to "p0" in the other
+    #models with covariates
+    
     #SPECIES-LEVEL PRIORS:
-    lp[k] ~ dnorm(mu.lp, tau.lp)
-    p[k] <- ilogit(lp[k])
+    a0[k] ~ dnorm(mu.a0, tau.a0)
     
     #abundance model (biological process)
     #non-identifiable:
@@ -83,11 +90,10 @@ model{
   #Community-level hyperpriors
   
   #initial occupancy
-  #Detection prior
-  p.mean ~ dbeta(1, 1)
-  mu.lp <- logit(p.mean)
-  sig.lp ~ dunif(0, 10)
-  tau.lp <- pow(sig.lp, -2)
+  #Detection intercept
+  mu.a0 ~ dnorm(0, 0.001)
+  tau.a0 <- pow(sig.a0, -2)
+  sig.a0 ~ dunif(0, 50)
   
   #species-level abundance
   mu.b0species ~ dnorm(0, 0.001)
