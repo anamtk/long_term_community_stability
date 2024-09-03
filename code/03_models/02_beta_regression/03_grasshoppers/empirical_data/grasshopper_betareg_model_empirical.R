@@ -34,13 +34,6 @@ model{
     #data point
     #diff[i] <- (1-mu[i])*mu[i] - var.estimate[i]
     
-    #Regression of mu, which is dependent on antecedent
-    #temperature, precipitation and npp
-    # logit(mu[i]) <- b0.transect[Transect.ID[i]] +
-    #   b[1]*AntTemp[i] +
-    #   b[2]*AntPPT[i] +
-    #   b[3]*AntNPP[i]
-    
     logit(mu[i]) <- b0.web[Web.ID[i]] +
       b[1]*AntTemp[i] +
       b[2]*AntPPT[i] +
@@ -83,11 +76,11 @@ model{
     # Goodness of fit parameters ###
     #-------------------------------------##
     # 
-    # #replicated data
-    # beta.rep[i] ~ dbeta(alpha[i], beta[i])
-    # 
-    # #residuals - is this still right?
-    # resid[i] <- bray[i] - mu[i]
+    #replicated data
+    beta.rep[i] ~ dbeta(alpha[i], beta[i])
+
+    #residuals - is this still right?
+    resid[i] <- bray[i] - mu[i]
     
   }
   
@@ -140,12 +133,6 @@ model{
 
   #HIERARCHICAL STRUCTURE PRIORS
   #there are a set of 5 webs in each site with 6 transects each
-  #i didn't use "site" since there are only two levels, but could
-  #add it in if we wanted later
-  #hierarchical centering of transects on webs on b0
-  # for(t in 1:n.transects){
-  #   b0.transect[t] ~ dnorm(b0.web[Web.ID[t]], tau.transect)
-  # }
   
   for(w in 1:n.webs){
     b0.web[w] ~ dnorm(b0, tau.web)
@@ -159,8 +146,6 @@ model{
   
   sig.web ~ dunif(0, 10)
   tau.web <- 1/pow(sig.web,2)
-  # sig.transect ~ dunif(0, 10)
-  # tau.transect <- 1/pow(sig.transect,2)
   
   #PRior for overall process error
   var.process ~ dunif(0, 100)

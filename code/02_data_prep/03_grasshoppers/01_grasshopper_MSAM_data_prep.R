@@ -1,5 +1,4 @@
 #Sevilleta grasshopper MSAM data prep
-#Ana Miller-ter Kuile
 #September 11, 2023
 
 #this script preps the sevilleta grasshopper dataset for an MSAM
@@ -37,12 +36,12 @@ for(i in package.list){library(i, character.only = T)}
 #Data can be found here:
 #https://portal.edirepository.org/nis/mapbrowse?packageid=knb-lter-sev.106.214969
 
-hopper <- read.csv(here('03_sev_grasshoppers',
-                        'data_raw',
+hopper <- read.csv(here('data_raw',
+                        '03_grasshoppers',
                         'sev106_grasshopper_counts.csv'))
 
-life <- read.csv(here('03_sev_grasshoppers',
-                      'data_raw',
+life <- read.csv(here('data_raw',
+                      '03_grasshoppers',
                       'SEV_grasshopper_species_list2020.csv'))
 
 # Subset data -------------------------------------------------------------
@@ -258,19 +257,20 @@ data <- list(y = y,
              Site.ID = Site.ID)
 
 #export that for using with the model
-saveRDS(data, here('03_sev_grasshoppers',
-                   "data_outputs",
-                   'MSAM',
-                   "model_inputs",
-                   "sev_msam_dynmultisite.RDS"))
+saveRDS(data, here('data_output',
+                   '03_grasshoppers',
+                   '01_MSAM',
+                   'MSAM_inputs',
+                   "grasshopper_msam_input_data_list.RDS"))
 
 
 # Extract info on sites and years -----------------------------------------
 
-write.csv(hopper4, here('03_sev_grasshoppers',
-                        'data_outputs',
-                        'MSAM',
-                        'sev_tidy_data_for_model.csv'))
+write.csv(hopper4, here('data_output',
+                        '03_grasshoppers',
+                        '01_MSAM',
+                        'other_data',
+                        'all_grasshopper_data.csv'))
 str(hopper4)
 
 ids <- hopper4 %>%
@@ -279,10 +279,11 @@ ids <- hopper4 %>%
            into = c('site', 'web', 'transect'),
            remove = F)
 
-write.csv(ids, here('03_sev_grasshoppers',
-               'data_outputs',
-               'metadata',
-               'sev_site_year_IDs.csv'))
+write.csv(ids, here('data_output',
+                    '03_grasshoppers',
+                    '01_MSAM',
+                    'other_data',
+               'site_year_IDs.csv'))
 
 # Get bray for site one ---------------------------------------------------
 
@@ -375,8 +376,10 @@ raw_bray2 <- as.data.frame(cbind(raw_bray_one = bray2,
 raw_bray_all <- raw_bray %>%
   left_join(raw_bray2, by = "year")
 
-saveRDS(raw_bray, here("05_visualizations",
-                       "viz_data",
+saveRDS(raw_bray, here('data_output',
+                       '03_grasshoppers',
+                       '01_MSAM',
+                       'other_data',
                        "sev_BOER_1_108_raw_bray.RDS"))
 
 
@@ -482,8 +485,10 @@ results <- lapply(sites, FUN = diss_fun)
 
 results_df <- do.call(rbind, results)
 
-saveRDS(results_df, here('05_visualizations',
-                         'viz_data',
+saveRDS(results_df, here('data_output',
+                         '03_grasshoppers',
+                         '01_MSAM',
+                         'other_data',
                          'sev_observed_bray.RDS'))
 
 

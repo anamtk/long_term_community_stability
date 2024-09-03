@@ -1,5 +1,4 @@
 #Convergence check for fish MSAM
-# Ana Miller-ter Kuile
 #Sepptember 7, 2023
 
 #this script assesses convergence in the fish msam

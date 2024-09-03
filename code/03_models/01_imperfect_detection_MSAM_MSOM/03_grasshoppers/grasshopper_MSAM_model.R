@@ -1,10 +1,11 @@
 model{
   #MSAM for Sevilleta Grasshoppers
-  #Ana Miller-ter Kuile
   #October 12, 2023
   
   # This model is a multi-site multi-species model 
   # for grasshoppers in the Sevilleta LTER
+  #it is a general model that can be run on any dataset with
+  #the structure of this dataset
   
   
   # Right now this model has these aspects:

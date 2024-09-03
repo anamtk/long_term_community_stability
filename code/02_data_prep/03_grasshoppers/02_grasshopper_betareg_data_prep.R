@@ -1,5 +1,4 @@
 #Sevilleta grasshoppers environmental variable prep
-#Ana Miller-ter Kuile
 # October 12, 2023
 
 #this script preps the environmental variables with lags
@@ -37,56 +36,55 @@ for(i in package.list){library(i, character.only = T)}
 
 # Load data ---------------------------------------------------------------
 
-c1 <- read.csv(here('03_sev_grasshoppers',
-                    'data_raw',
-                    'environmental',
-                    'Sevilleta_LTER_Hourly_Meteorological_Data_1995_1999.csv'))
+#these are large files, so you can download them from here:
+#https://portal.edirepository.org/nis/mapbrowse?packageid=knb-lter-sev.1.16
 
-c2 <- read.csv(here('03_sev_grasshoppers',
-                    'data_raw',
-                    'environmental',
-                    'Sevilleta_LTER_Hourly_Meteorological_Data_2000_2004.csv'))
-
-c3 <- read.csv(here('03_sev_grasshoppers',
-                    'data_raw',
-                    'environmental',
-                    'Sevilleta_LTER_Hourly_Meteorological_Data_2005_2009.csv'))
-
-c4 <- read.csv(here('03_sev_grasshoppers',
-                    'data_raw',
-                    'environmental',
-                    'Sevilleta_LTER_Hourly_Meteorological_Data_2010_2014.csv'))
-
-c5 <- read.csv(here('03_sev_grasshoppers',
-                    'data_raw',
-                    'environmental',
-                    'Sevilleta_LTER_Hourly_Meteorological_Data_2015_2019.csv'))
-
-c6 <- read.csv(here('03_sev_grasshoppers',
-                    'data_raw',
-                    'environmental',
-                    'Sevilleta_LTER_Hourly_Meteorological_Data_2020_2022.csv'))
-
-npp <- read.csv(here('03_sev_grasshoppers',
-                     'data_raw',
-                     'environmental',
-                     'sev331_quadrat_plant_species_biomass.csv'))
+# c1 <- read.csv(here('data_raw',
+#                     '03_grasshoppers',
+#                     'Sevilleta_LTER_Hourly_Meteorological_Data_1995_1999.csv'))
+# 
+# c2 <- read.csv(here('data_raw',
+#                     '03_grasshoppers',
+#                     'Sevilleta_LTER_Hourly_Meteorological_Data_2000_2004.csv'))
+# 
+# c3 <- read.csv(here('data_raw',
+#                     '03_grasshoppers',
+#                     'Sevilleta_LTER_Hourly_Meteorological_Data_2005_2009.csv'))
+# 
+# c4 <- read.csv(here('data_raw',
+#                     '03_grasshoppers',
+#                     'Sevilleta_LTER_Hourly_Meteorological_Data_2010_2014.csv'))
+# 
+# c5 <- read.csv(here('data_raw',
+#                     '03_grasshoppers',
+#                     'Sevilleta_LTER_Hourly_Meteorological_Data_2015_2019.csv'))
+# 
+# c6 <- read.csv(here('data_raw',
+#                     '03_grasshoppers',
+#                     'Sevilleta_LTER_Hourly_Meteorological_Data_2020_2022.csv'))
+# 
+# #found here:
+# #https://portal.edirepository.org/nis/mapbrowse?packageid=knb-lter-sev.331.2
+# npp <- read.csv(here('data_raw',
+#                      '03_grasshoppers',
+#                      'sev331_quadrat_plant_species_biomass.csv'))
 
 #to get the sites and transects we need for the other 
 #two datasets
-stability <- readRDS(here("03_sev_grasshoppers",
-                          "monsoon",
-                          "MSAM",
-                          "outputs",
-                          "sev_bray_meanSD.RDS"))
+stability <- readRDS(here('model_summaries',
+                          '03_grasshoppers',
+                          "grasshopper_MSAM_results_bray_meanSD.RDS"))
 
-IDs <- read.csv(here('03_sev_grasshoppers',
-                     'data_outputs',
-                     'metadata',
-                     'sev_site_year_IDs.csv'))
+IDs <- read.csv(here('data_output',
+                     '03_grasshoppers',
+                     "01_MSAM",
+                     'other_data',
+                     'site_year_IDs.csv'))
 
-raw_dat <- readRDS(here('05_visualizations',
-                        'viz_data',
+raw_dat <- readRDS(here('data_output',
+                        '03_grasshoppers',
+                        "01_MSAM",
+                        'other_data',
                         'sev_observed_bray.RDS'))
 
 # Get response data in order ----------------------------------------------
@@ -313,11 +311,11 @@ ggcorrplot(cor(dat3, use = "complete.obs"),
 # Export ------------------------------------------------------------------
 
 write.csv(all_data2,
-          here("03_sev_grasshoppers",
-               "data_outputs",
-               'SAM',
-               'data_prep',
-               "sev_stability_metrics_with_covariates.csv"))
+          here("data_output",
+               '01_fish',
+               '02_betareg',
+               'other_data',
+               "grasshopper_betareg_tidydata.csv"))
 
 
 # Prep data for jags ------------------------------------------------------
@@ -438,11 +436,11 @@ data <- list(n.data = n.data,
              PPT = PPT, 
              NPP = NPP)
 
-saveRDS(data, here('03_sev_grasshoppers',
-                   "data_outputs",
-                   'SAM',
-                   "model_inputs",
-                   "sev_bray_SAM_input_data_notrans.RDS"))
+saveRDS(data, here("data_output",
+                   '03_grasshoppers',
+                   '02_betareg',
+                   'betareg_inputs',
+                   "grasshopper_betareg_input_data_list_impdetect.RDS"))
 
 
 
@@ -566,7 +564,11 @@ saveRDS(data, here('03_sev_grasshoppers',
                    "data_outputs",
                    'SAM',
                    "model_inputs",
-                   "sev_bray_SAM_input_data_raw_notrans.RDS"))
+                   "data_output",
+                   '03_grasshoppers',
+                   '02_betareg',
+                   'betareg_inputs',
+                   "grasshopper_betareg_input_data_list_empirical.RDS"))
 
 
 

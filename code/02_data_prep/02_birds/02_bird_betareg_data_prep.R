@@ -231,11 +231,11 @@ ggcorrplot(cor(corr_check), type = "lower", lab = T)
 
 # Export ------------------------------------------------------------------
 
-write.csv(all_data2, here("02_konza_birds",
-                         "data_outputs",
-                         'SAM',
-                         'data_prep',
-                         "stability_metrics_with_covariates.csv"))
+write.csv(all_data2, here('data_output',
+                          '02_birds',
+                          '02_betareg',
+                          'other_data',
+                          'bird_betareg_tidydata.csv'))
 
 
 # Prep data for jags ------------------------------------------------------
