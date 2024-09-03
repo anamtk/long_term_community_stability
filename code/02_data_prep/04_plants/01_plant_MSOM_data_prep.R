@@ -1,4 +1,3 @@
-# Shelby Lamm
 # September 15, 2023
 # NPS plant data prep 
 
@@ -447,31 +446,26 @@ data <- list(n.species = n.species,
              Year.ID = Year.ID,
              Site.ID = Site.ID)
 
-# saveRDS(data, here('04_nps_plants',
-#                    'data_outputs',
-#                    'MSAM',
-#                    'model_inputs',
-#                    'nps_msam_multisite_subset.RDS'))
-
-saveRDS(data, here('04_nps_plants',
-                   'data_outputs',
-                   'MSAM',
-                   'model_inputs',
-                   'nps_msam_multisite_subset.RDS'))
-
-
+saveRDS(data, here('data_output',
+                   "04_plants",
+                   "01_MSOM",
+                   "MSOM_inputs",
+                   'plant_msom_input_data_list.RDS'))
+                   
 
 # Save site metadata ------------------------------------------------------
 
-write.csv(quadnums, here('04_nps_plants',
-                         'data_outputs',
-                         'metadata',
+write.csv(quadnums, here('data_output',
+                         "04_plants",
+                         "01_MSOM",
+                         "other_data",
                          'site_year_IDs.csv'))
 
-write.csv(occ2, here('04_nps_plants',
-                     'data_outputs',
-                     'MSAM',
-                     'pfnp_tidy_data_for_model.csv'))
+write.csv(occ2, here('data_output',
+                     "04_plants",
+                     "01_MSOM",
+                     "other_data",
+                     'all_plant_data.csv'))
 
 # Raw Jaccard -------------------------------------------------------------
 
@@ -571,8 +565,10 @@ raw_jacc2 <- as.data.frame(cbind(turnover_one = turnover2,
 raw_jacc_all <- raw_jacc %>%
   left_join(raw_jacc2, by = "year")
 
-saveRDS(raw_jacc_all, here("05_visualizations",
-                       "viz_data",
+saveRDS(raw_jacc_all, here('data_output',
+                           "04_plants",
+                           "01_MSOM",
+                           "other_data",
                        "nps_S02_B_3_raw_jaccard.RDS"))
 
 
@@ -702,8 +698,10 @@ results <- lapply(sites, FUN = diss_fun)
 
 results_df <- do.call(rbind, results)
 
-saveRDS(results_df, here('05_visualizations',
-                         'viz_data',
+saveRDS(results_df, here('data_output',
+                         "04_plants",
+                         "01_MSOM",
+                         "other_data",
                          'nps_observed_jaccard.RDS'))
 
 

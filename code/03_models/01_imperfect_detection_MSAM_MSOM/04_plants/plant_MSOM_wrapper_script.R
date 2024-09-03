@@ -1,5 +1,4 @@
-# Running the MSOM for birds
-# Ana Miller-ter Kuile
+# Running the MSOM for 
 # September 8, 2023
 
 # Load packages ---------------------------------------------------------------
@@ -23,11 +22,11 @@ for(i in package.list){library(i, character.only = T)}
 
 # Load Data ---------------------------------------------------------------
 
-data <- readRDS(here('04_nps_plants',
-                     'data_outputs',
-                     'MSAM',
-                     'model_inputs',
-                     'nps_msam_multisite_subset.RDS'))
+data <- readRDS(here('data_output',
+                     "04_plants",
+                     "01_MSOM",
+                     "MSOM_inputs",
+                     'plant_msom_input_data_list.RDS'))
 
 # Set Initials ------------------------------------------------------------
 
@@ -55,11 +54,15 @@ params <- c(
 
 # JAGS model --------------------------------------------------------------
 
-model <- here("04_nps_plants",
-              'code',
-              '02_nps_analyses',
-              'jags',
-              "nps_MSOM_simple_yrsite.R")
+model <- here("code",
+              '03_models',
+              '01_imperfect_detection_MSAM_MSOM',
+              '04_plants',
+              'plant_MSOM_model.R')
+
+#note this model takes a long time to run and requires
+#updating the model several times with initial values for 
+#root nodes in order to converge
 
 Sys.time()
 start<-proc.time()
@@ -77,8 +80,75 @@ Sys.time()
 end<-proc.time()
 end-start
 
+
+# Check convergence -------------------------------------------------------
+
 mcmcplot(mod$samples)
 gelman.diag(mod$samples, multivariate = F)
+
+
+# GOF ---------------------------------------------------------------------
+
+observed <- read.csv(here('data_output',
+                          "04_plants",
+                          "01_MSOM",
+                          "other_data",
+                          'all_plant_data.csv'))
+
+parms2 <- c(y.rep)
+
+mod2 <- update(mod,
+               parameters.to.save = parms2,
+               n.iter = 1335)
+
+modeled <- mod2$summary
+
+
+# Prep observed -----------------------------------------------------------
+
+obs2 <- observed %>%
+  dplyr::select(EventYear, Plot, Transect, Quadrat, quadnum,
+                yrID, REP, SpecID, presence)
+
+# Pull out yrep -----------------------------------------------------------
+
+#y.rep is indexed species, years, quadrats, reps
+
+yrep <- as.data.frame(modeled$statistics) %>%
+  rownames_to_column(var = 'parm') %>%
+  filter(str_detect(parm, "y.rep")) %>%
+  separate(parm,
+           into = c("SpecID", 'yrID', "quadnum", "REP"),
+           sep = ",") %>%
+  mutate(SpecID = str_sub(SpecID, 7, nchar(SpecID))) %>%
+  mutate(REP = str_sub(REP, 1, (nchar(REP)-1))) %>%
+  mutate(SpecID = as.numeric(SpecID),
+         quadnum = as.numeric(quadnum),
+         yrID = as.numeric(yrID),
+         REP = as.numeric(REP)) %>%
+  left_join(obs2, by = c("SpecID", "quadnum", "yrID", "REP"))
+
+
+# Plot --------------------------------------------------------------------
+
+m1 <- lm(Mean ~ presence,
+         data = yrep)
+
+summary(m1)
+
+
+ggplot(yrep, aes(x = presence, y = Mean)) +
+  geom_abline(intercept = 0, slope = 1) +
+  geom_point()
+
+yrep %>%
+  mutate(presence = as.factor(presence)) %>%
+  ggplot(aes(x = presence, y = Mean)) +
+  geom_boxplot() +
+  annotate(geom = 'text', x = 2.25, y = 0.25, label = lb1, parse = T) +
+  labs(x = "observed", y = "predicted", title = "PFNP plant MSOM GOF")
+
+# Get turnover ------------------------------------------------------------
 
 #get 3-d array into a dataframe, dimensions need to be named
 #https://community.rstudio.com/t/fastest-way-to-convert-3d-array-to-matrix-or-data-frame/38398/5

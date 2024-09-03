@@ -19,26 +19,28 @@ for(i in package.list){library(i, character.only = T)}
 
 # Load data ---------------------------------------------------------------
 
-climate <- read.csv(here('04_nps_plants',
-                        'data_raw',
+climate <- read.csv(here('data_raw',
+                         '04_plants',
                         'seasonal_ppt_vpd.csv'))
+
 climate <- climate[,-c(1:2)]
 
 #to get the sites and transects we need for the other 
 #two datasets
-stability <- readRDS(here("04_nps_plants",
-                          "monsoon",
-                          "nps_MSAM",
-                          "outputs_yrsite",
-                          "nps_Jaccard_summary.RDS"))
+stability <- readRDS(here('model_summaries',
+                          '04_plants',
+                          "plant_MSOM_results_turnover_meanSD.RDS"))
 
-IDs <- read.csv(here('04_nps_plants',
-                     'data_outputs',
-                     'metadata',
+IDs <- read.csv(here('data_output',
+                     "04_plants",
+                     "01_MSOM",
+                     "other_data",
                      'site_year_IDs.csv'), row.names=1)
 
-obs_nps <- readRDS(here('05_visualizations',
-                        'viz_data',
+obs_nps <- readRDS(here('data_output',
+                        "04_plants",
+                        "01_MSOM",
+                        "other_data",
                         'nps_observed_jaccard.RDS'))
 
 # Get response data in order ----------------------------------------------
@@ -187,11 +189,11 @@ ggcorrplot(cor(dat1, use = "complete.obs"),
 # Export ------------------------------------------------------------------
 
 write.csv(all_data2,
-          here("04_nps_plants",
-               "data_outputs",
-               'SAM',
-               'data_prep',
-               "nps_stability_metrics_with_covariates.csv"))
+          here('data_output',
+               '04_plants',
+               '02_betareg',
+               'other_data',
+               "plant_betareg_tidydata.csv"))
 
 
 # prep data for jags ------------------------------------------------------
@@ -307,11 +309,11 @@ data <- list(n.data = n.data,
              PPT = PPT, 
              VPD = VPD)
 
-saveRDS(data, here('04_nps_plants',
-                   "data_outputs",
-                   'SAM',
-                   "model_inputs",
-                   "nps_diss_SAM_input_data.RDS"))
+saveRDS(data, here('data_output',
+                   '03_grasshoppers',
+                   '02_betareg',
+                   'betareg_input',
+                   "plant_betareg_input_data_list_impdetect.RDS"))
 
 
 # Prep empirical data for jags --------------------------------------------
@@ -432,11 +434,11 @@ data <- list(n.data = n.data,
              PPT = PPT, 
              VPD = VPD)
 
-saveRDS(data, here('04_nps_plants',
-                   "data_outputs",
-                   'SAM',
-                   "model_inputs",
-                   "nps_diss_SAM_input_data_raw.RDS"))
+saveRDS(data, here('data_output',
+                   '03_grasshoppers',
+                   '02_betareg',
+                   'betareg_input',
+                   "plant_betareg_input_data_list_empirical.RDS"))
 
 
 

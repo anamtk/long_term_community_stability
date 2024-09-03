@@ -1,7 +1,6 @@
 model{
 
   #Multi-species occupancy model for NPS Plant dataset
-  #Ana Miller-ter Kuile, Kiona Ogle, Shelby Lamm
   #September 2023
 
   #This is a multi-species occupancy model for understory plants in the 
