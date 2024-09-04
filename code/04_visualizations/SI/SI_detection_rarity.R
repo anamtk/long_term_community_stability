@@ -1,5 +1,4 @@
 #Distribution of detection probabilities
-#Ana Miller-ter Kuile
 #October 27, 2023
 
 #this script looks at the distribution of detection probabilities for each
@@ -30,51 +29,51 @@ theme_set(theme_bw())
 #need: 
 #summary of species-level detection probabilities
 
-fish_detect <- readRDS(here('01_sbc_fish',
-                            'monsoon',
-                            'fish_MSAM',
-                            'outputs',
+fish_detect <- readRDS(here('model_summaries',
+                            '01_fish',
+                            'other_parameters',
                             'fish_p0_summary.RDS'))
 
-hopper_detect <- readRDS(here('03_sev_grasshoppers',
-                              'monsoon',
-                              'MSAM',
-                              'outputs',
-                              'grasshopper_p_summary.RDS'))
-
-bird_detect <- readRDS(here('02_konza_birds',
-                            'monsoon',
-                            'MSAM',
-                            'outputs',
+bird_detect <- readRDS(here('model_summaries',
+                            '02_birds',
+                            'other_parameters',
                             'bird_p0_summary.RDS'))
 
-plant_detect <- readRDS(here('04_nps_plants',
-                             'monsoon',
-                             'nps_MSAM',
-                             'outputs_yrsite',
-                             'nps_p0_summary.RDS'))
+hopper_detect <- readRDS(here('model_summaries',
+                              '03_grasshoppers',
+                              'other_parameters',
+                              'grasshopper_p_summary.RDS'))
+
+plant_detect <- readRDS(here('model_summaries',
+                             '04_plants',
+                             'other_parameters',
+                             'plant_p0_summary.RDS'))
 
 
 
-fish_ob <- read.csv(here('01_sbc_fish',
-                         'data_outputs',
-                         'MSAM',
+fish_ob <- read.csv(here('data_output',
+                         '01_fish',
+                         '01_MSAM',
+                         'other_data',
                          'all_fish_data.csv'))
 
-bird_ob <- read.csv(here('02_konza_birds',
-                         'data_outputs',
-                         'MSAM',
-                         'knz_tidy_data_for_model.csv'))
+bird_ob <- read.csv(here('data_output',
+                         '02_birds',
+                         '01_MSAM',
+                         'other_data',
+                         'all_bird_data.csv'))
 
-hop_ob <- read.csv(here('03_sev_grasshoppers',
-                        'data_outputs',
-                        'MSAM',
-                        'sev_tidy_data_for_model.csv'))
+hop_ob <- read.csv(here('data_output',
+                        '03_grasshoppers',
+                        '01_MSAM',
+                        'other_data',
+                        'all_grasshopper_data.csv'))
 
-plant_ob <- read.csv(here('04_nps_plants',
-                          'data_outputs',
-                          'MSAM',
-                          'pfnp_tidy_data_for_model.csv'))
+plant_ob <- read.csv(here('data_output',
+                          '04_plants',
+                          '01_MSOM',
+                          'other_data',
+                          'all_plant_data.csv'))
 
 # Prep for plotting -------------------------------------------------------
 
@@ -209,14 +208,14 @@ ggplot(aes(x = `50%`)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)))
 
 obsplot / detplot + plot_annotation(tag_levels = "A")
-
-ggsave(plot = last_plot(),
-       filename = here("pictures",
-                       "detection_models",
-                       "species_detection_probabilities.jpg"),
-       height = 5,
-       width = 5,
-       units = "in")
+# 
+# ggsave(plot = last_plot(),
+#        filename = here("pictures",
+#                        "detection_models",
+#                        "species_detection_probabilities.jpg"),
+#        height = 5,
+#        width = 5,
+#        units = "in")
 
 mod <- lm(`50%` ~ dataset,
           data = detect_df)

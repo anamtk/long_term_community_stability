@@ -1,5 +1,4 @@
 #observed vs. corrected dissimilarity analysis
-#Ana Miller-ter Kuile
 #October 16, 2023
 
 #this is an exploratory script to get the paired differences
@@ -23,84 +22,58 @@ if(length(new.packages)) install.packages(new.packages)
 for(i in package.list){library(i, character.only = T)}
 
 theme_set(theme_bw())
-# Simulated process -------------------------------------------------------
-# 
-# type <- c(rep("observed", 10), rep("corrected", 10))
-# samp <- c(1:10, 1:10)
-# dataset <- c(rep(1,3), rep(2, 3), rep(3,4),rep(1,3), rep(2, 3), rep(3,4))
-# response <- c(runif(10, min = 0, max = 1), runif(10, min = 0, max = 0.7))
-# 
-# df <- as.data.frame(cbind(type = type,
-#                     samp = samp,
-#                     dataset = dataset,
-#                     response = response)) %>%
-#   mutate(response = as.numeric(response))
-# 
-# 
-# m <- glmmTMB(response ~ type*dataset + (1|samp),
-#              data = df,
-#              beta_family)
-# 
-# summary(m)
-# 
-# ggplot(df, aes(x = dataset, y = response, fill = type)) +
-#   geom_boxplot()
-
-#could also run this as a JAGS model - but for now this works I think
-#as a template for assessing this.
-
 
 # Load data ---------------------------------------------------------------
 
-sbc_obs <- readRDS(here('05_visualizations',
-                        'viz_data',
+sbc_obs <- readRDS(here('data_output',
+                        '01_fish',
+                        "01_MSAM",
+                        'other_data',
                         'sbc_observed_bray.RDS'))
 
 str(sbc_obs)
 
-sbc_modeled <- readRDS(here('01_sbc_fish',
-                            'monsoon',
-                            'fish_MSAM',
-                            'outputs',
-                            'fish_bray_meanSD.RDS'))
+sbc_modeled <- readRDS(here('model_summaries',
+                            '01_fish',
+                            'fish_MSAM_results_bray_meanSD.RDS'))
 #will need:
 #raw bray for all communities, 
 #corrected bray for communities - linked to raw
 
-konza_obs <- readRDS(here('05_visualizations',
-                          'viz_data',
+konza_obs <- readRDS(here('data_output',
+                          '02_birds',
+                          "01_MSAM",
+                          'other_data',
                           'konza_observed_bray.RDS'))
 
-konza_modeled <- readRDS(here('02_konza_birds',
-                              'monsoon',
-                              'MSAM',
-                              'outputs',
-                              'bird_bray_meanSD.RDS'))
+konza_modeled <- readRDS(here('model_summaries',
+                              '02_birds',
+                              'birds_MSAM_results_bray_meanSD.RDS'))
 
 #sevilleta
-sev_obs <- readRDS(here('05_visualizations',
-                        'viz_data',
+sev_obs <- readRDS(here('data_output',
+                        '03_grasshoppers',
+                        "01_MSAM",
+                        'other_data',
                         'sev_observed_bray.RDS'))
 
-sev_modeled <- readRDS(here('03_sev_grasshoppers',
-                            'monsoon',
-                            "MSAM",
-                            "outputs",
-                            'sev_bray_meanSD.RDS'))
+sev_modeled <- readRDS(here('model_summaries',
+                            '03_grasshoppers',
+                            'grasshopper_MSAM_results_bray_meanSD.RDS'))
 
-nps_obs <- readRDS(here('05_visualizations',
-                        'viz_data',
+nps_obs <- readRDS(here('data_output',
+                        '04_plants',
+                        "01_MSOM",
+                        'other_data',
                         'nps_observed_jaccard.RDS'))
 
 nps_obs <- nps_obs %>%
   rename(yrID = EventYear,
          siteID = plot_trans_quad)
 
-nps_modeled <- readRDS(here('04_nps_plants',
-                            'monsoon',
-                            'nps_MSAM',
-                            'outputs_yrsite',
-                            'nps_Jaccard_summary.RDS'))
+nps_modeled <- readRDS(here('model_summaries',
+                            '04_plants',
+                            'plant_MSOM_results_turnover_meanSD.RDS'))
 
 # Prep modeled data -------------------------------------------------------
 
@@ -308,15 +281,6 @@ all_boxplot <- (sbc_boxplot | knz_boxplot) /
 all_boxplot 
 
 
-ggsave(plot = all_boxplot,
-       filename = here("pictures",
-                       "detection_models",
-                       "observed_modeled_violin.jpg"),
-       height = 12,
-       width = 16,
-       units = "cm",
-       dpi = 400)
-
 # Looking at differences across datasets ----------------------------------
 
 library(brms)
@@ -349,10 +313,3 @@ ggplot(t, aes(x = dataset, y= estimate, shape = contrast)) +
                 width = 0, linewidth = 0.75,
                 position = position_dodge(width = 0.4))
 
-ggsave(plot = last_plot(),
-       filename = here("pictures",
-                       "detection_models",
-                       "observed_modeled_data_contrasts.jpg"),
-       height = 4,
-       width = 6,
-       units = "in")

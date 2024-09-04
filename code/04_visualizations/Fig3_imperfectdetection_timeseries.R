@@ -1,5 +1,4 @@
 #Loading and description of raw vs. corrected graph dat objects
-#Ana Miller-ter Kuile
 #September 20, 2023
 
 #this script loads and describes the three datasets generated
@@ -25,9 +24,11 @@ for(i in package.list){library(i, character.only = T)}
 #I output data for ABUR, transect 1 from the monthly sbc survey
 #data from 2002 - 2022
 
-raw_sbc <- readRDS(here("05_visualizations",
-                    "viz_data",
-                    "sbc_ABUR1_raw_bray.RDS"))
+raw_sbc <- readRDS(here('data_output',
+                        '01_fish',
+                        '01_MSAM',
+                        'other_data',
+                        'sbc_ABUR1_raw_bray.RDS'))
 
 #rename to merge
 raw_sbc <- raw_sbc %>%
@@ -36,8 +37,9 @@ raw_sbc <- raw_sbc %>%
 #this is 100 random posterior samples of the "bray" object from the 
 #model (what is the model predicting bray to be across specific
 #iterations of the MCMC chains)
-samples_sbc <- readRDS(here("05_visualizations",
-                        "viz_data",
+samples_sbc <- readRDS(here('model_summaries',
+                            '01_fish',
+                            'other_parameters',
                         "ABUR1_bray_samples.RDS"))
 
 samples_sbc <- samples_sbc %>%
@@ -46,8 +48,9 @@ samples_sbc <- samples_sbc %>%
 
 #this is the posterior mean and standard deviation of bray
 #from the model output
-posterior_sbc <- readRDS(here("05_visualizations",
-                          "viz_data",
+posterior_sbc <- readRDS(here('model_summaries',
+                              '01_fish',
+                              'other_parameters',
                           "ABUR1_bray_summary.RDS"))
 
 posterior_sbc <- posterior_sbc %>%
@@ -56,8 +59,10 @@ posterior_sbc <- posterior_sbc %>%
 
 # ⊣ birds -----------------------------------------------------------------
 
-raw_knz <- readRDS(here("05_visualizations",
-                         "viz_data",
+raw_knz <- readRDS(here('data_output',
+                        '02_birds',
+                        '01_MSAM',
+                        'other_data',
                          "knz_N04D_raw_bray.RDS"))
 
 raw_knz <- raw_knz %>%
@@ -66,8 +71,9 @@ raw_knz <- raw_knz %>%
 #this is 100 random posterior samples of the "bray" object from the 
 #model (what is the model predicting bray to be across specific
 #iterations of the MCMC chains)
-samples_knz <- readRDS(here("05_visualizations",
-                             "viz_data",
+samples_knz <- readRDS(here('model_summaries',
+                            '02_birds',
+                            'other_parameters',
                              "knz_N04D_bray_samples.RDS"))
 
 samples_knz <- samples_knz %>%
@@ -75,8 +81,9 @@ samples_knz <- samples_knz %>%
 
 #this is the posterior mean and standard deviation of bray
 #from the model output
-posterior_knz <- readRDS(here("05_visualizations",
-                               "viz_data",
+posterior_knz <- readRDS(here('model_summaries',
+                              '02_birds',
+                              'other_parameters',
                                "knz_N04D_bray_summary.RDS"))
 
 posterior_knz <- posterior_knz %>%
@@ -85,22 +92,26 @@ posterior_knz <- posterior_knz %>%
 
 # ⊣ grasshoppers ----------------------------------------------------------
 
-raw_sev <- readRDS(here('05_visualizations',
-                        'viz_data',
+raw_sev <- readRDS(here('data_output',
+                        '03_grasshoppers',
+                        '01_MSAM',
+                        'other_data',
                         'sev_BOER_1_108_raw_bray.RDS'))
 
 raw_sev <- raw_sev %>%
   rename(raw_diss = raw_bray_all)
 
-samples_sev <- readRDS(here('05_visualizations',
-                            'viz_data',
+samples_sev <- readRDS(here('model_summaries',
+                            '03_grasshoppers',
+                            'other_parameters',
                             'sev_BOER_1_108_bray_samples.RDS'))
 
 samples_sev <- samples_sev %>%
   rename(diss = bray)
 
-posterior_sev <- readRDS(here('05_visualizations',
-                              'viz_data',
+posterior_sev <- readRDS(here('model_summaries',
+                              '03_grasshoppers',
+                              'other_parameters',
                               'sev_BOER_1_108_bray_summary.RDS'))
 
 posterior_sev <- posterior_sev %>%
@@ -110,21 +121,25 @@ posterior_sev <- posterior_sev %>%
 
 # Plants ------------------------------------------------------------------
 
-nps_ids <- read.csv(here('04_nps_plants',
-                         'data_outputs',
-                         'metadata',
+nps_ids <- read.csv(here('data_output',
+                         '04_plants',
+                         '01_MSOM',
+                         'other_data',
                          'site_year_IDs.csv'))
 
-raw_nps <- readRDS(here('05_visualizations',
-                        'viz_data',
+raw_nps <- readRDS(here('data_output',
+                        '04_plants',
+                        '01_MSOM',
+                        'other_data',
                         'nps_S02_B_3_raw_jaccard.RDS'))
 
 raw_nps <- raw_nps %>%
   rename(raw_diss = turnover_all)
 
 
-samples_nps <- readRDS(here('05_visualizations',
-                            'viz_data',
+samples_nps <- readRDS(here('model_summaries',
+                            '04_plants',
+                            'other_parameters',
                             'nps_Jaccard_samples_S02_B_3.RDS'))
 
 years <- nps_ids %>%
@@ -148,8 +163,9 @@ samples_nps <- samples_nps %>%
          'year' = 'EventYear') %>%
   dplyr::select(-plot_trans_quad)
 
-posterior_nps <- readRDS(here('05_visualizations',
-                              'viz_data',
+posterior_nps <- readRDS(here('model_summaries',
+                              '04_plants',
+                              'other_parameters',
                               'nps_Jaccard_summary_S02_B_3.RDS'))
 
 posterior_nps <- posterior_nps %>%
@@ -261,10 +277,3 @@ timeseries_nps <- timeseries_function(dataset = "plants") +
 timeseries_together <- timeseries_sbc / timeseries_knz / timeseries_sev / timeseries_nps
 timeseries_together 
 
-ggsave(plot = timeseries_together,
-       filename = here("pictures",
-                       "detection_models",
-                       "observed_modeled_timeseries.jpg"),
-       height = 14,
-       width = 12,
-       units = "cm")

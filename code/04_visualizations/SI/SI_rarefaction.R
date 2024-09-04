@@ -19,9 +19,10 @@ for(i in package.list){library(i, character.only = T)}
 
 # Load data ---------------------------------------------------------------
 
-fish <- read.csv(here('01_sbc_fish',
-                      'data_outputs',
-                      'MSAM',
+fish <- read.csv(here('data_output',
+                      '01_fish',
+                      '01_MSAM',
+                      'other_data',
                       'all_fish_data.csv'))
 
 yearly <- fish %>%
@@ -60,10 +61,11 @@ fish_cover <- ggiNEXT(out.fish, type=2, color.var="Assemblage") +
 
 # Birds -------------------------------------------------------------------
 
-bird <- read.csv(here('02_konza_birds',
-                       'data_outputs',
-                       'MSAM',
-                       'knz_tidy_data_for_model.csv'))
+bird <- read.csv(here('data_output',
+                      '02_birds',
+                      '01_MSAM',
+                      'other_data',
+                      'all_bird_data.csv'))
 
 bird_yr <- bird %>%
   group_by(RECYEAR, AOUCODE) %>%
@@ -103,10 +105,11 @@ bird_cover <- ggiNEXT(out.bird, type=2, color.var="Assemblage") +
 
 # Grasshoppers ------------------------------------------------------------
 
-hop <- read.csv(here('03_sev_grasshoppers',
-                       'data_outputs',
-                       'MSAM',
-                       'sev_tidy_data_for_model.csv'))
+hop <- read.csv(here('data_output',
+                     '03_grasshoppers',
+                     '01_MSAM',
+                     'other_data',
+                     'all_grasshopper_data.csv'))
 
 hop_yr <- hop %>%
   group_by(YEAR, SPECIES) %>%
@@ -146,10 +149,11 @@ hop_cover <- ggiNEXT(out.hop, type=2, color.var="Assemblage") +
 
 # plants ------------------------------------------------------------------
 
-plant <- read.csv(here('04_nps_plants',
-                     'data_outputs',
-                     'MSAM',
-                     'pfnp_tidy_data_for_model.csv'))
+plant <- read.csv(here('data_output',
+                       '04_plants',
+                       '01_MSOM',
+                       'other_data',
+                       'all_plant_data.csv'))
 
 plant_yr <- plant %>%
   group_by(EventYear, SpecID) %>%
@@ -191,9 +195,3 @@ plant_cover <- ggiNEXT(out.plant, type=2, color.var="Assemblage") +
 fish_cover + bird_cover + hop_cover + plant_cover +
   plot_annotation(tag_levels = "A")
 
-ggsave(plot = last_plot(),
-       filename = here("pictures",
-                       "richness_rarefaction.jpg"),
-       height = 8,
-       width = 14,
-       units = "in")

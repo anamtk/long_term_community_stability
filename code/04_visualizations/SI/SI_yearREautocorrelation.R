@@ -1,5 +1,4 @@
 #Temporal autocorrelation in year random effects
-#Ana Miller-ter Kuile
 # June 10, 2024
 
 #this script looks for evidence of temporal auto
@@ -46,11 +45,10 @@ par(mfrow = c(2,2))
 # Fish --------------------------------------------------------------------
 
 
-fish_mod <- readRDS(here('01_sbc_fish',
-                    'monsoon',
-                    'fish_MSAM',
-                    'outputs',
-                    'fish_detection_summary.RDS'))
+fish_mod <- readRDS(here('model_summaries',
+                         '01_fish',
+                         'other_parameters',
+                         'fish_detection_summary.RDS'))
 
 years <- as.data.frame(fish_mod$quantiles) %>%
   rownames_to_column(var = "parm") %>%
@@ -73,10 +71,9 @@ species_list <- lapply(species, auto_function)
 
 # Birds -------------------------------------------------------------------
 
-bird_mod <- readRDS(here('02_konza_birds',
-                         'monsoon',
-                         'MSAM',
-                         'outputs',
+bird_mod <- readRDS(here('model_summaries',
+                         '02_birds',
+                         'other_parameters',
                          'bird_detection_summary.RDS'))
 
 years <- as.data.frame(bird_mod$quantiles) %>%
@@ -101,10 +98,9 @@ species_list <- lapply(species, auto_function)
 
 # Hoppers -----------------------------------------------------------------
 
-hop_mod <- readRDS(here('03_sev_grasshoppers',
-                        'monsoon',
-                        'MSAM',
-                        'outputs',
+hop_mod <- readRDS(here('model_summaries',
+                        '03_grasshoppers',
+                        'other_parameters',
                         'grasshopper_detection_summary.RDS'))
 
 years <- as.data.frame(hop_mod$quantiles) %>%
@@ -129,11 +125,10 @@ species_list <- lapply(species, auto_function)
 
 # Plants ------------------------------------------------------------------
 
-plant_mod <- readRDS(here('04_nps_plants',
-                        'monsoon',
-                        'nps_MSAM',
-                        'outputs_yrsite',
-                        'nps_detection_summary.RDS'))
+plant_mod <- readRDS(here('model_summaries',
+                          '04_plants',
+                          'other_parameters',
+                        'plant_detection_summary.RDS'))
 
 years <- as.data.frame(plant_mod$quantiles) %>%
   rownames_to_column(var = "parm") %>%
